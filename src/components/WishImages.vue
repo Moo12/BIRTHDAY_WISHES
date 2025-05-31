@@ -1,0 +1,235 @@
+<template>
+    <div class="flex flex-col gap-4">
+        <!-- Existing images -->
+        <div v-if="isWishImages" class="self-start">
+            <label>תמונות </label>
+            <label>{{ VUE_APP_MAX_IMAGES_PER_WISH }}  / {{ numberOfUsedImages }}</label>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+            <div v-for="(img, i) in currentImages" :key="i" class="relative w-32 h-32">
+            <img :src="`${uploadBaseUrl}${img}`" class="w-full h-full object-cover rounded border" />
+            <button
+                type="button"
+                class="absolute top-0 right-0 bg-white rounded-bl px-1 text-red-500"
+                @click="removeImage(img)"
+            >
+                ✕
+            </button>
+            </div>
+        </div>
+    <div>
+        <!-- Hidden file input -->
+        <input
+        type="file"
+        id="fileInput"
+        ref="fileInput"
+        @change="handleFilesSelected"
+        class="hidden"
+        multiple />
+
+        <!-- Custom label styled as button with icon -->
+        <label
+        for="fileInput"
+        class="btn inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded"
+        >
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+        >
+            <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12v8m0 0l-4-4m4 4l4-4m0-5a4 4 0 10-8 0"
+            />
+        </svg>
+        העלאת תמונות
+        </label>
+    </div>
+
+
+      <!-- Selected files preview with status -->
+      <div v-if="selectedFiles.length" class="flex flex-col gap-1 mt-2 text-sm">
+        <div
+          v-for="file in selectedFiles"
+          :key="file.name"
+          class="flex justify-between items-center gap-4"
+        >
+          <span>{{ file.name }}</span>
+          <span>
+            <span v-if="uploadStatuses[file.name] === 'uploading'" class="text-blue-500">Uploading...</span>
+            <span v-else-if="uploadStatuses[file.name] === 'done'" class="text-green-600">Uploaded ✓</span>
+            <span v-else-if="uploadStatuses[file.name] === 'failed'" class="text-red-600">Failed ✗</span>
+            <span v-else class="text-gray-500">Pending</span>
+          </span>
+        </div>
+      </div>
+    </div>
+</template>
+<script setup>
+    import { ref, reactive, computed, defineExpose } from "vue";
+    import useImage from "@/composables/useImages";
+
+    const ERROR_MESSAGES = {
+        1001: "ההתחברות נכשלה. אנא נסה/י להתחבר מחדש.",
+        1002: "חסרה הרשאת התחברות. אנא התחבר/י שוב.",
+        1003: "רק מנהלים יכולים להעלות תמונות לאתר.",
+        1004: "המשתמש לא נמצא.",
+        1005: "הקובץ אינו תמונה חוקית.",
+        1006: "גודל התמונה חורג מהמותר.",
+        1007: "הגעת למספר המירבי של תמונות.",
+        1008: "הקובץ לא נמצא.",
+        1009: "מחיקת הקובץ נכשלה.",
+        1010: "שגיאה לא מוכרת"
+    };
+
+    const VUE_APP_MAX_IMAGES_PER_WISH = Number(process.env.VUE_APP_MAX_IMAGES_PER_WISH || 4);
+    console.log(typeof process.env.VUE_APP_MAX_IMAGES_PER_WISH); // "string"
+
+
+    const props = defineProps({
+    isWishImages : { type: Boolean, default: true },
+    initialImages: { type: Array, default: () => [] },
+    uploadBaseUrl: { type: String, required: true },
+    });
+
+    const emit = defineEmits(["update:images"]);
+
+    const fileInput = ref(null);
+
+    const currentImages = ref([...props.initialImages]); // URLs currently shown (after deletes/uploads)
+    const deletedImages = ref([]); // URLs removed, to delete from backend
+    const selectedFiles = ref([]);
+    const uploadStatuses = reactive({});
+
+    const { UploadImage, deleteImage } = useImage();
+
+    const handleFilesSelected = () => {
+    const files = fileInput.value?.files;
+    selectedFiles.value = files ? Array.from(files) : [];
+
+    selectedFiles.value.forEach((file) => {
+        uploadStatuses[file.name] = "pending";
+    });
+    };
+
+    const removeImage = (imgUrl) => {
+    // Remove from current images
+    currentImages.value = currentImages.value.filter((img) => img !== imgUrl);
+
+    // If it's an existing image (came from initialImages), mark for backend deletion
+    if (props.initialImages.includes(imgUrl)) {
+        deletedImages.value.push(imgUrl);
+    }
+    };
+
+    function clearImages() {
+        if (fileInput.value) fileInput.value.value = "";
+    }
+
+    async function saveImages(wishId) {
+
+    const statusReport = {};
+
+    // 1. Delete removed images from backend
+    for (const url of deletedImages.value) {
+        const fileName = url.split("/").pop();
+        let fileStatus;
+        let deletedStatus
+        if (fileName) {
+        try {
+            deletedStatus = await deleteImage(fileName, wishId);
+
+            if (deletedStatus?.success){
+                console.log('deletedImage', fileName)
+                fileStatus = "done";
+            }
+            else{
+                console.error('failed to delete', fileName)
+                fileStatus = "failed";
+            }
+        } catch (err) {
+            console.error("Failed to delete image:", fileName, err);
+            fileStatus = "failed";
+        }
+        let error_code = deletedStatus?.error_code
+
+        let errMsg = ""
+        if (fileStatus === "failed"){
+            errMsg = ERROR_MESSAGES[error_code] || "שגיאה לא מוכרת"
+            currentImages.value.push(url)
+
+        }
+
+        statusReport[fileName] = { status: fileStatus, msg: errMsg}
+        }
+    }
+
+    deletedImages.value = [];
+
+    // 2. Upload selected files one by one
+    for (const file of selectedFiles.value) {
+        uploadStatuses[file.name] = "uploading";
+        let fileStatus;
+        let response
+        try {
+            response = await UploadImage(file, wishId);
+            if (response?.success) {
+                currentImages.value.push(response.url);
+                console.log("uploadedUrl", response.url)
+                uploadStatuses[file.name] = "done";
+                fileStatus = "done";
+            } else {
+                uploadStatuses[file.name] = "failed";
+                fileStatus = "failed";
+                console.error ("uploaded failed: ", file)
+            }
+        } catch {
+            fileStatus = "failed";
+            uploadStatuses[file.name] = "failed";
+        }
+
+        let error_code = response?.error_code || 1010
+
+        console.log("error_code", error_code)
+
+        let errMsg = ""
+        if (fileStatus === "failed"){
+            errMsg = ERROR_MESSAGES[error_code] || ERROR_MESSAGES[1010]
+
+            console.log("errMsg", errMsg)
+        }
+
+        statusReport[file.name] = { status: fileStatus, msg: errMsg}
+
+    }
+
+    const hasImageErrors = Object.values(statusReport || {}).some(status => status.statue !== "done");
+
+    if (!hasImageErrors){
+
+        selectedFiles.value = [];
+    }
+
+    console.log("hasImageErrors", hasImageErrors)
+
+    // Clear selected files & input
+    if (fileInput.value) fileInput.value.value = "";
+
+    // 3. Emit updated list and upload/delete statuses
+    emit("update:images", {
+        images: [...currentImages.value],
+        statuses: { ...statusReport }
+    });
+    }
+
+    const numberOfUsedImages = computed(() => {
+    return (currentImages.value?.length || 0)
+    });
+
+    // expose saveImages method to parent
+    defineExpose({ saveImages, currentImages, clearImages });
+</script>
