@@ -6,8 +6,11 @@ const useImage = () => {
 
     const { user } = useAuth()
 
-    async function UploadGeneralSiteImage(file){
-        const res = await UploadImageImp(file, "upload_site_image")
+    const BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL;
+
+
+    async function UploadGeneralImage(file){
+        const res = await UploadImageImp(file, "upload-site-image")
         return res
     }
 
@@ -39,7 +42,7 @@ const useImage = () => {
         };
       
         try {
-          const res = await fetch(`http://127.0.0.1:8080/${endPoint}`, {
+          const res = await fetch(`${BASE_URL}/${endPoint}`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -83,69 +86,84 @@ const useImage = () => {
         return response;
     }
 
-     const deleteImage = async (filename, wishId = null) => {
+    async function deleteGeneralImage(file){
+        const res = await deleteImageImp(file, "delete-site-image")
+        return res
+    }
 
-        pending.value = true
-        
-        let response = {
-            success: true,
-            error_code: 0,
-            status: null,
-            message: "",
+    async function deleteImage(file, wishId){
+        const append = []
+        append.push({ argument: "wish_id", content: wishId})
+        const res = await deleteImageImp(file, "delete-image", append)
+
+        return res
+    }
+    const deleteImageImp = async (filename, endPoint, propertiesAppend = []) => {
+        pending.value = true;
+      
+        const response = {
+          success: true,
+          error_code: 0,
+          status: null,
+          message: "",
         };
-
+      
+        // Ensure propertiesAppend is safe and append filename
+        propertiesAppend.push({ argument: "filename", content: filename });
+      
+        // Build URL query parameters safely
+        const params = new URLSearchParams();
+        propertiesAppend.forEach(({ argument, content }) => {
+          params.append(argument, content);
+        });
+      
         const token = await user.value.getIdToken();
-    
+      
         try {
-            const BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL;
-
-            const wishIdUrl = wishId ? `&wish_id=${encodeURIComponent(wishId)}` : ""
-            const res = await fetch(
-                `${BASE_URL}/delete-image?filename=${encodeURIComponent(filename)}${wishIdUrl}`,
-                {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                }
-            );
-
+          const res = await fetch(
+            `${BASE_URL}/${endPoint}?${params.toString()}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+      
           response.status = res.status;
-    
+      
           if (!res.ok) {
-            response.success = false
+            response.success = false;
             const errData = await res.json();
-            let errorMsg =
-            typeof errData === "object" && "detail" in errData
-            ? errData.detail
-            : JSON.stringify(errData);
-            
-            response.error_code = errorMsg?.error_code
-            response.message = errorMsg?.message
-
-            console.error("errorMsg", errorMsg)
+            if (errData?.error_code) {
+              response.error_code = errData.error_code;
+              response.message = errData.message || "An error occurred";
+            } else if (errData?.detail) {
+              response.message = errData.detail;
+            } else {
+              response.message = JSON.stringify(errData);
+            }
+      
+            console.error("Error deleting image:", response.message);
+          } else {
+            const result = await res.json();
+            response.message = result?.message || "Delete successful";
+            console.log("delete result:", result.message);
           }
-          else{
-              const result = await res.json();
-              response.success = true;
-              response.message = "Delete successful";
-              console.log("delete result:", result.message);
-          }
-    
+      
         } catch (err) {
-            response.success = false
-            response.error_code = "9999"
-            response.message = "unexpected error";
-
-            console.error("Delete error:", err);
+          response.success = false;
+          response.error_code = "9999";
+          response.message = "Unexpected error";
+          console.error("Delete error:", err);
         }
+      
+        pending.value = false;
+        return response;
+    };
+      
 
-        pending.value = false
-        return response
-      };
-
-
-     return { pending, UploadImage, deleteImage}
+     return { pending, UploadImage, UploadGeneralImage, deleteImage, deleteGeneralImage}
 }
 
 

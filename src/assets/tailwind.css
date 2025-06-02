@@ -8,7 +8,6 @@
 body {
     @apply font-heebo;
 }
-
 .btn {
-    @apply font-bold cursor-pointer hover:opacity-70;
+    @apply font-bold cursor-pointer hover:opacity-70 disabled:cursor-not-allowed;
 }

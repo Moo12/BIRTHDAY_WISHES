@@ -1,27 +1,24 @@
+// composables/useFirestoreCollection.js
 import { ref } from 'vue';
 import { projectFireStore } from '../firebase/config';
-import { collection, query, where, onSnapshot, getDocs } from "firebase/firestore";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 
-const getCollection = (_collectionName) => {
-  const collectionName = _collectionName; // Store the collection name
+const useFirestoreCollection = () => {
   const documents = ref(null);
   const error = ref(null);
-  let unsub = null; // Store the current unsubscribe function
+  let unsub = null; // unsubscribe function
 
-  // Function to set up the Firestore listener (REAL-TIME)
-  const subscribeToCollection = (conditions = []) => {
-    // Use the dynamically passed collection name or the initial one if not provided
-    if (unsub) {
-      unsub();
-    }
+  // Main subscription method — accepts collection name + conditions
+  const subscribeToCollection = (collectionName, conditions = []) => {
+    // Prevent duplicate listeners
+    if (unsub) unsub();
 
     try {
       let collectionRef = collection(projectFireStore, collectionName);
 
-
       if (conditions.length > 0) {
-        const queries = conditions.map((condition) =>
-          where(condition.field, condition.operator, condition.value)
+        const queries = conditions.map((cond) =>
+          where(cond.field, cond.operator, cond.value)
         );
         collectionRef = query(collectionRef, ...queries);
       }
@@ -29,14 +26,10 @@ const getCollection = (_collectionName) => {
       unsub = onSnapshot(
         collectionRef,
         (snapshot) => {
-
-          const results = snapshot.docs.map((doc) => ({
+          documents.value = snapshot.docs.map((doc) => ({
             ...doc.data(),
             id: doc.id,
           }));
-
-          console.log('snapshot', results)
-          documents.value = results;
           error.value = null;
         },
         (err) => {
@@ -51,7 +44,17 @@ const getCollection = (_collectionName) => {
     }
   };
 
-  return { documents, error, subscribeToCollection };
+  // Optional: call this when component unmounts
+  const unsubscribe = () => {
+    if (unsub) unsub();
+  };
+
+  return {
+    documents,
+    error,
+    subscribeToCollection,
+    unsubscribe,
+  };
 };
 
-export default getCollection;
+export default useFirestoreCollection;

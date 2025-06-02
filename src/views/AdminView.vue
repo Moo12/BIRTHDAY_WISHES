@@ -1,7 +1,11 @@
 <template>
-    <div class="flex flex-col items-center justify-center">
+    <div class="flex flex-col h-full mt-[4%] gap-6">
         <p class="text-right">אדמין איחולים</p>
-        <WishesList class="w-full"/>
+
+        <!-- Main Content (Changes Based on Route) -->
+        <div class="flex-1 p-4">
+            <router-view />
+        </div>
     </div>
 </template>
 

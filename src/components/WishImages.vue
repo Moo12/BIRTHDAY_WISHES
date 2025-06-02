@@ -3,7 +3,7 @@
         <!-- Existing images -->
         <div v-if="isWishImages" class="self-start">
             <label>תמונות </label>
-            <label>{{ VUE_APP_MAX_IMAGES_PER_WISH }}  / {{ numberOfUsedImages }}</label>
+            <label>{{ configStore.maxImagesPerWish }}  / {{ numberOfUsedImages }}</label>
         </div>
         <div class="flex gap-2 flex-wrap">
             <div v-for="(img, i) in currentImages" :key="i" class="relative w-32 h-32">
@@ -72,6 +72,7 @@
 <script setup>
     import { ref, reactive, computed, defineExpose } from "vue";
     import useImage from "@/composables/useImages";
+    import { useConfigStore } from '@/stores/configStore'
 
     const ERROR_MESSAGES = {
         1001: "ההתחברות נכשלה. אנא נסה/י להתחבר מחדש.",
@@ -86,9 +87,7 @@
         1010: "שגיאה לא מוכרת"
     };
 
-    const VUE_APP_MAX_IMAGES_PER_WISH = Number(process.env.VUE_APP_MAX_IMAGES_PER_WISH || 4);
-    console.log(typeof process.env.VUE_APP_MAX_IMAGES_PER_WISH); // "string"
-
+    const configStore = useConfigStore()
 
     const props = defineProps({
     isWishImages : { type: Boolean, default: true },
@@ -105,7 +104,8 @@
     const selectedFiles = ref([]);
     const uploadStatuses = reactive({});
 
-    const { UploadImage, deleteImage } = useImage();
+
+    const { pending, UploadImage, UploadGeneralImage, deleteImage, deleteGeneralImage} = useImage()
 
     const handleFilesSelected = () => {
     const files = fileInput.value?.files;
@@ -131,6 +131,14 @@
     }
 
     async function saveImages(wishId) {
+        saveImagesImp(wishId)
+    }
+
+    async function saveGeneralImages() {
+        saveImagesImp()
+    }
+
+    async function saveImagesImp(wishId = null) {
 
     const statusReport = {};
 
@@ -141,7 +149,13 @@
         let deletedStatus
         if (fileName) {
         try {
-            deletedStatus = await deleteImage(fileName, wishId);
+            if (props.isWishImages){
+                deletedStatus = await deleteImage(fileName, wishId);
+            }
+            else{
+                deletedStatus = await deleteGeneralImage(fileName);
+
+            }
 
             if (deletedStatus?.success){
                 console.log('deletedImage', fileName)
@@ -176,7 +190,12 @@
         let fileStatus;
         let response
         try {
-            response = await UploadImage(file, wishId);
+            if (props.isWishImages){
+                response = await UploadImage(file, wishId);
+            }
+            else{
+                response = await UploadGeneralImage(file);
+            }
             if (response?.success) {
                 currentImages.value.push(response.url);
                 console.log("uploadedUrl", response.url)
@@ -204,7 +223,6 @@
         }
 
         statusReport[file.name] = { status: fileStatus, msg: errMsg}
-
     }
 
     const hasImageErrors = Object.values(statusReport || {}).some(status => status.statue !== "done");
@@ -227,9 +245,9 @@
     }
 
     const numberOfUsedImages = computed(() => {
-    return (currentImages.value?.length || 0)
+        return (currentImages.value?.length || 0)
     });
 
     // expose saveImages method to parent
-    defineExpose({ saveImages, currentImages, clearImages });
+    defineExpose({ saveImages, currentImages, clearImages, saveGeneralImages });
 </script>

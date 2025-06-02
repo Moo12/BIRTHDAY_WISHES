@@ -1,6 +1,33 @@
 <template>
     <nav class="w-full px-4 py-3 bg-white shadow flex justify-between items-center">
-      <div class="text-xl font-bold">🎉 My Wishes App</div>
+      <div class="text-xl font-bold"></div>
+      <div class="flex items-center gap-4">
+            <router-link
+                to="/"
+                class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent
+                       router-link-exact-active:text-blue-700 router-link-exact-active:border-blue-500"
+            >
+            🎉 אלבום הברכות של אורלי           
+            </router-link>
+
+            <router-link
+                v-if="user && userRole === 'admin'"
+                to="/admin/user-view"
+                class="text-purple-400 hover:text-purple-800 font-semibold py-1 px-2 border-b-2 border-transparent
+                       router-link-active:text-red-800"
+            >
+            וUser View
+            </router-link>
+            <router-link
+                v-if="user && userRole === 'admin'"
+                to="/admin/images"
+                class="text-purple-400 hover:text-purple-800 font-semibold py-1 px-2 border-b-2 border-transparent
+                       router-link-active:text-red-800"
+            >
+site images maanager
+            </router-link>
+        </div>
+
   
       <div class="flex items-center gap-4">
         <div v-if="user">
@@ -26,6 +53,6 @@
   import { LogIn, LogOut } from 'lucide-vue-next'
   import useAuth from '@/composables/useAuth'
   
-  const { user, loginWithGoogle, logout } = useAuth()
+  const { user, userRole, loginWithGoogle, logout } = useAuth()
   </script>
   

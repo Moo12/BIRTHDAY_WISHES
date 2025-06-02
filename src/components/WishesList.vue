@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!isLoading" class="">
+    <div v-if="!wishlistStore.loading" class="">
         <div v-if="deleteStatus" class="text-center text-red-600 font-semibold my-4 mx-auto">
         {{ deleteStatus }}
         </div>
@@ -21,44 +21,33 @@
 
 <script setup>
 import { computed, ref } from "vue"
-import getCollection from '@/composables/getCollection'
 import useDocument from '@/composables/useDocument'
 import useAuth from '@/composables/useAuth'
+import { useWishlistStore } from '@/stores/wishListStore'
 
 import SingleWish from './SingleWish.vue'
 import WishForm from "./WishForm.vue"
 
-const { documents, error, subscribeToCollection } = getCollection("wishes")
 const { error : errorDocument, isPending : isPendingDocAction, _deleteDoc, _updateDoc } = useDocument("wishes");
 
 const { user, userRole } = useAuth()
+
+const wishlistStore = useWishlistStore()
 
 const deleteStatus = ref("")
 
 const currentEditedWishDoc = ref(null)
 
-subscribeToCollection()
-
-const isLoading = computed(() => {
-    if (!documents.value){
-      return true
-    }
-
-    console.log(documents.value)
-
-    return false
-  })
-
 const visibleWishes = computed(() => {
-  if (!documents.value || !user.value) return [];
+  if (!wishlistStore.documents || !user.value) return [];
 
   // Admin and Celebrant can see all
   if (userRole.value === 'admin' || userRole.value === 'celebrant') {
-    return documents.value;
+    return wishlistStore.documents;
   }
 
   // Regular user: own + public
-  return documents.value.filter(doc =>
+  return wishlistStore.documents.filter(doc =>
     doc.user === user.value.uid || doc.public === true
   );
 });
@@ -83,7 +72,7 @@ const handleRemove = async (id) => {
 const handleEdit = (id) => {
     console.log("handleEdit", id)
 
-    currentEditedWishDoc.value = documents.value.find(item => item.id === id)
+    currentEditedWishDoc.value = wishlistStore.documents.find(item => item.id === id)
 
     console.log("edited wish", currentEditedWishDoc.value)
 }

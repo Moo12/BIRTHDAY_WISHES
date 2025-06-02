@@ -50,11 +50,10 @@
 
 <script setup>
 import { computed, ref, onMounted } from 'vue';
+
 import useCollection from '@/composables/useCollection'
 import useAuth from "@/composables/useAuth"
-
 import WishImages from "@/components/WishImages.vue";
-
 
 const emit = defineEmits(["save"]);
 const props = defineProps({
@@ -62,7 +61,7 @@ const props = defineProps({
 });
 
 const { user } = useAuth()
-const { error : errAddToDb, pending : pendingDb, addDocImp } = useCollection("wishes")
+const { error : errAddToDb, pending : pendingDb, addDocImp } = useCollection()
 
 const UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL;
 const images = ref([]);  // All image URLs
@@ -132,7 +131,7 @@ async function handleImagesUpdate(imagesStatus) {
 
     const id = props.wishDoc?.id || null;
 
-    const docUpload = await addDocImp(wish, id)
+    const docUpload = await addDocImp("wishes", wish, id)
     if (docUpload === null) {
         console.error("Failed to upload wish to DB");
         uploadEndStr.value += " שגיאת מסד נתונים.";
@@ -163,9 +162,6 @@ const handleSubmit = async (e) => {
     uploadEndStr.value = "";
 
     const id = props.wishDoc?.id || null;
-
-    console.log("167", editMode.value)
-
 
     //create doc before uplaod images to get id
     if (!editMode.value){
