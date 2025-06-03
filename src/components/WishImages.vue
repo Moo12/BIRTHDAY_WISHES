@@ -174,8 +174,6 @@
         let errMsg = ""
         if (fileStatus === "failed"){
             errMsg = ERROR_MESSAGES[error_code] || "שגיאה לא מוכרת"
-            currentImages.value.push(url)
-
         }
 
         statusReport[fileName] = { status: fileStatus, msg: errMsg}

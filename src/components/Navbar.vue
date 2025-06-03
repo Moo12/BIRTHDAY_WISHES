@@ -9,22 +9,21 @@
             >
             🎉 אלבום הברכות של אורלי           
             </router-link>
-
             <router-link
-                v-if="user && userRole === 'admin'"
-                to="/admin/user-view"
+                v-if="user && userRole === 'admin'" :exact="true" 
+                to="/admin/user-view"  
                 class="text-purple-400 hover:text-purple-800 font-semibold py-1 px-2 border-b-2 border-transparent
-                       router-link-active:text-red-800"
+                       router-link-exact-active:text-purple-800"
             >
-            וUser View
+            User View
             </router-link>
             <router-link
-                v-if="user && userRole === 'admin'"
+                v-if="user && userRole === 'admin'" :exact="true" 
                 to="/admin/images"
                 class="text-purple-400 hover:text-purple-800 font-semibold py-1 px-2 border-b-2 border-transparent
-                       router-link-active:text-red-800"
+                       router-link-exact-active:text-purple-800"
             >
-site images maanager
+Images Panel
             </router-link>
         </div>
 

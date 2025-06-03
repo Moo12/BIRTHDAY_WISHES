@@ -28,7 +28,7 @@ import { useWishlistStore } from '@/stores/wishListStore'
 import SingleWish from './SingleWish.vue'
 import WishForm from "./WishForm.vue"
 
-const { error : errorDocument, isPending : isPendingDocAction, _deleteDoc, _updateDoc } = useDocument("wishes");
+const { error : errorDocument, isPending : isPendingDocAction, _deleteDoc } = useDocument("wishes");
 
 const { user, userRole } = useAuth()
 

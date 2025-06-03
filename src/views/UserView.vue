@@ -34,7 +34,7 @@
                 </div> 
         
                 <div v-if="isCreateWish" class="fixed inset-0 bg-black z-[10] w-full bg-opacity-80 h-[100vh]" dir="rtl">
-                    <div class="w-[50%] mx-auto">
+                    <div class="md:w-[50%] w-[90%] mx-auto">
                         <WishForm @save="handleImageSave"/>
                     </div>    
                 </div>    

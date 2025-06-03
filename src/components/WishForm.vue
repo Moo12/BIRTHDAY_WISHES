@@ -80,6 +80,8 @@ const uploadEndStr = ref("")
 
 const editMode = ref(false)
 
+const currentWishId = ref(null)
+
 // Populate form if editing
 onMounted(() => {
     afterMounted.value = false
@@ -90,6 +92,8 @@ onMounted(() => {
         images.value = props.wishDoc.images_url || [];
 
         submitText.value = " עדכנ.י ברכה"
+
+        currentWishId.value = props.wishDoc.id
 
         editMode.value = true
     }
@@ -129,9 +133,7 @@ async function handleImagesUpdate(imagesStatus) {
         public: publicWish.value,
     }
 
-    const id = props.wishDoc?.id || null;
-
-    const docUpload = await addDocImp("wishes", wish, id)
+    const docUpload = await addDocImp("wishes", wish, currentWishId.value)
     if (docUpload === null) {
         console.error("Failed to upload wish to DB");
         uploadEndStr.value += " שגיאת מסד נתונים.";
@@ -161,12 +163,11 @@ const handleSubmit = async (e) => {
     actionState.value.status = "success"
     uploadEndStr.value = "";
 
-    const id = props.wishDoc?.id || null;
+    let id = currentWishId.value || null;
 
     //create doc before uplaod images to get id
     if (!editMode.value){
-        const docUpload = await addDocImp({}, id)
-        console.log("173")
+        const docUpload = await addDocImp("wishes", {}, id)
 
         if (docUpload === null) {
             console.error("Failed to upload wish to DB");
@@ -177,17 +178,18 @@ const handleSubmit = async (e) => {
             if (wishImagesRef.value) {
                 wishImagesRef.value.clearImages();
             }
-            console.log("184")
-
             emit("save", "error");
 
             return;
         }
+
+        console.log("docUpload",docUpload.id)
+        currentWishId.value = docUpload.id
     }
 
     // Ask WishImages to save images (delete + upload)
     if (wishImagesRef.value) {
-        wishImagesRef.value.saveImages(id);
+        wishImagesRef.value.saveImages(currentWishId.value);
     }
 }
 
