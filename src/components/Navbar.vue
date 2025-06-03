@@ -38,9 +38,9 @@ Images Panel
           </button>
         </div>
         <div v-else>
-          <button @click="loginWithGoogle"
+          <button
                   class="flex items-center gap-1 text-blue-500 hover:text-blue-700 text-sm sm:text-base">
-            <LogIn class="w-5 h-5 sm:w-6 sm:h-6" />
+            <LogIn @click="loginWithGoogle" class="w-5 h-5 sm:w-6 sm:h-6" />
             <span class="hidden sm:inline">התחבר</span>
           </button>
         </div>
