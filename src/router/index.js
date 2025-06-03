@@ -4,7 +4,7 @@ import UserView from '@/views/UserView.vue'
 import CelebrantView from '@/views/CelebrantView.vue'
 import AdminView from '@/views/AdminView.vue'
 import AdminImagesManager from '@/components/AdminImagesManager.vue'
-import LoginView from '@/views/LoginView.vue' // Assuming LoginView is now in Login folder
+import LoginView from '@/views/LoginView.vue'
 import useAuth from '@/composables/useAuth'
 
 const { user, userRole, authReady } = useAuth();
@@ -56,10 +56,18 @@ const routes = [
 ]
 
 // Redirect to signin on logout if currently on protected route
-watch(user, (newUser) => {
+watch(() => user.value , (newUser) => {
+  // If user becomes authenticated AND is currently on the signin page,
+  // redirect them to the root path (which will then lead to their dashboard via beforeEach)
+  if (newUser && router.currentRoute.value.path === '/signin') {
+    console.log("route to /")
+    router.push('/');
+    return; // Stop further execution in this watch handler
+  }
+
   // Only push to signin if user becomes null AND the current route required authentication
   // This prevents redirecting authenticated users who log out from public pages
-  if (!newUser?.value && router.currentRoute.value.meta?.requiresRole) {
+  if (!newUser && router.currentRoute.value.meta?.requiresRole) {
     router.push('/signin');
   }
 });

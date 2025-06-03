@@ -44,6 +44,7 @@ const loginWithGoogle = async () => {
     const result = await signInWithPopup(auth, provider);
     user.value = result.user;
 
+    console.log("createUserIfNotExists")
     createUserIfNotExists(user.value)
   } catch (err) {
     error.value = err.message;
@@ -51,18 +52,28 @@ const loginWithGoogle = async () => {
 };
 
 const createUserIfNotExists = async (user) => {
+  console.log("imp", user.email)
   const ref = doc(projectFireStore, 'users', user.uid)
-  const snap = await getDoc(ref)
+  console.log("57", ref)
+  const snap = false; //await getDoc(ref)
+
+  console.log("59")
 
   let role = specialRoles[user.email] || 'user';
 
-  if (!snap.exists()) {
+  console.log("new role", role)
+
+  //if (!snap.exists()) {
+  if (!snap) {
+
     await setDoc(ref, {
       uid: user.uid,
       name: user.displayName,
       email: user.email,
       role: role
     })
+
+    console.log("created")
   }
 }
 
