@@ -10,6 +10,7 @@
                     <p class="text-right">הברכה שלי:</p>
                     <textarea v-model="content" placeholder="איחוליך..." class="w-full border p-2 rounded" rows="10"></textarea>
                 </div>
+                <div v-if="errorMessage" class="text-red-600 text-center font-semibold">{{ errorMessage }}</div>
 
                 <div v-if=afterMounted>
                     <WishImages
@@ -49,7 +50,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 
 import useCollection from '@/composables/useCollection'
 import useAuth from "@/composables/useAuth"
@@ -90,6 +91,8 @@ const editMode = ref(false)
 
 const currentWishId = ref(null)
 
+const errorMessage = ref("")
+
 // Populate form if editing
 onMounted(() => {
     afterMounted.value = false
@@ -108,6 +111,13 @@ onMounted(() => {
 
     afterMounted.value = true
 });
+
+// Add a watcher to clear errorMessage when content is entered
+watch(() => content.value, (val) => {
+  if (val && val.trim() !== "") {
+    errorMessage.value = ""
+  }
+})
 
   // Receive updated images from WishImages
 async function handleImagesUpdate(imagesStatus) {
@@ -166,40 +176,45 @@ async function handleImagesUpdate(imagesStatus) {
 }
 
 const handleSubmit = async (e) => {
+  errorMessage.value = ""
+  if (!content.value || content.value.trim() === "") {
+    errorMessage.value = "יש למלא תוכן לברכה לפני שליחה."
+    return
+  }
 
-    console.log("handleSubmit")
-    actionState.value.state = "upload"
-    actionState.value.status = "success"
-    uploadEndStr.value = "";
+  console.log("handleSubmit")
+  actionState.value.state = "upload"
+  actionState.value.status = "success"
+  uploadEndStr.value = "";
 
-    let id = currentWishId.value || null;
+  let id = currentWishId.value || null;
 
-    //create doc before uplaod images to get id
-    if (!editMode.value){
-        const docUpload = await addDocImp("wishes", {}, id)
+  //create doc before uplaod images to get id
+  if (!editMode.value){
+    const docUpload = await addDocImp("wishes", {}, id)
 
-        if (docUpload === null) {
-            console.error("Failed to upload wish to DB");
-            uploadEndStr.value += " שגיאת מסד נתונים.";
-            actionState.value.status = "failure";
-            actionState.value.state = "end"
+    if (docUpload === null) {
+        console.error("Failed to upload wish to DB");
+        uploadEndStr.value += " שגיאת מסד נתונים.";
+        actionState.value.status = "failure";
+        actionState.value.state = "end"
 
-            if (wishImagesRef.value) {
-                wishImagesRef.value.clearImages();
-            }
-            emit("save", "error");
-
-            return;
+        if (wishImagesRef.value) {
+            wishImagesRef.value.clearImages();
         }
+        emit("save", "error");
 
-        console.log("docUpload",docUpload.id)
-        currentWishId.value = docUpload.id
+        return;
     }
 
-    // Ask WishImages to save images (delete + upload)
-    if (wishImagesRef.value) {
-        wishImagesRef.value.saveImages(currentWishId.value);
-    }
+    console.log("docUpload",docUpload.id)
+    currentWishId.value = docUpload.id
+  }
+
+  // Ask WishImages to save images (delete + upload)
+  if (wishImagesRef.value) {
+    wishImagesRef.value.saveImages(currentWishId.value);
+  }
 }
 
 function resetForm() {

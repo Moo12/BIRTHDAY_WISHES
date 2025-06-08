@@ -14,7 +14,7 @@
           @edit="$emit('edit', $event)"
           @remove="$emit('remove', $event)"
           @cancel="$emit('close')"
-          @save="$emit('save', $event)"
+          @save="$emit('save', $event); console.log('save modal wrraper')"
         />
       </div>
 

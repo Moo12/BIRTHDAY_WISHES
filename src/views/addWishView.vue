@@ -16,33 +16,20 @@
           </p>
         </div>
       </div>
-      <button
-        class="add-wish-btn  px-8 py-4 rounded-xl font-bold text-lg md:text-2xl shadow-lg border-2 border-purple-400 bg-purple-100 text-purple-700 focus:outline-none"
-        @click="isModalOpen = true"
-      >
-        הוסף ברכה חדשה ✨
-      </button>
-      <!-- Centered Animated Button -->
-      <!-- Modal -->
+      <AddWish @wish-added="onAddWish"/>
     </div>
-    <ModalWrapper v-if="isModalOpen" :component="WishForm" @close="isModalOpen = false" @save="handleSave" />
   </div>
 </template>
 
 <script setup>
 import { ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
-import ModalWrapper from '@/components/ModalWrapper.vue'
-import WishForm from '@/components/WishForm.vue'
+import AddWish from '@/components/AddWish.vue'
 import { useGeneralCollectionStore } from '@/stores/generalDocsStore'
 
-const isModalOpen = ref(false)
 const router = useRouter()
-
 const generalStore = useGeneralCollectionStore()
-
 const VUE_APP_UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL
-
 const backgroundImage = ref("")
 const wishCardBackground = ref("")
 
@@ -56,12 +43,8 @@ watchEffect(() => {
   wishCardBackground.value = subImg ? `${VUE_APP_UPLOAD_BASE_URL}${subImg.url}` : ''
 })
 
-function handleSave(status) {
-  console.log("handle save", status)
-  if (status === 'success') {
-    isModalOpen.value = false
-    router.push('/all-wishes')
-  }
+function onAddWish() {
+  router.push('/all-wishes')
 }
 </script>
 

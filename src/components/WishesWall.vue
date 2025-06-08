@@ -1,19 +1,23 @@
 <template>
-    <div class="p-4 md:p-10 bg-neutral-100 min-h-screen">
-      <div v-if="deleteStatus" class="text-center text-red-600 font-semibold my-4 mx-auto">
-        {{ deleteStatus }}
+    <div
+    class="p-4 md:p-10 bg-neutral-100 min-h-screen relative opacity-90"
+    :style="boardBackground ? { backgroundImage: `url('${boardBackground}')`, backgroundSize: 'cover', backgroundPosition: 'top', backgroundRepeat: 'no-repeat' } : {}">
+      <div class="mt-[15%] md:mt-[7%]">
+        <AddWish @wish-added="onAddWish"/>
+        <div v-if="deleteStatus" class="text-center text-red-600 font-semibold my-4 mx-auto">
+          {{ deleteStatus }}
         </div>
-  
+      
       <!-- Filter Row -->
-      <div class="mx-auto flex flex-col gap-2 mb-6 justify-center items-center">
+      <div class="mx-auto mt-[2%] flex flex-col gap-6 mb-6 justify-center items-center">
         <div class="flex items-center gap-2">
           <label for="nameFilter" class="font-semibold">שם:</label>
           <input
-            id="nameFilter"
-            v-model="nameFilter"
-            type="text"
-            placeholder="חפש.י לפי שם..."
-            class="border rounded px-2 py-1 text-sm"
+          id="nameFilter"
+          v-model="nameFilter"
+          type="text"
+          placeholder="חפש.י לפי שם..."
+          class="border rounded px-2 py-1 text-sm"
           />
         </div>
         <div class="gap-4 flex items-center justify-between">
@@ -21,23 +25,23 @@
           <button @click="filter = 'mine'" :class="filterButtonClass('mine')">שלי</button>
         </div>
       </div>
-  
+      
       <!-- Wish Mural -->
-      <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center">
+      <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center ">
         <div v-for="wish in visibleWishes" :key="wish.id">
           <WishPoster
             :wish="wish"
             :isMine="user?.uid === wish.user"
             @open="handleOpenWish(wish)"
             />
-            <ModalWrapper v-if="selectedWish"
-              :component="SingleWishWallStyle"
-              :componentProps="{ wish: selectedWish, editable: user?.uid === selectedWish.user }"
-              @close="selectedWish = null"
-              @edit="selectedWishToEdit = wish; selectedWish = null; console.log('edit wishes wall', selectedWishToEdit)"
-              @remove="handleRemove(wish.id)"
-            />
         </div>
+        <ModalWrapper v-if="selectedWish"
+          :component="SingleWishWallStyle"
+          :componentProps="{ wish: selectedWish, editable: user?.uid === selectedWish.user }"
+          @close="selectedWish = null"
+          @edit="selectedWishToEdit = selectedWish; selectedWish = null; console.log('edit wishes wall', selectedWishToEdit)"
+          @remove="handleRemove()"
+        />
       </div>
   
 
@@ -47,7 +51,9 @@
         :component="WishForm"
         :componentProps="{ wishDoc: selectedWishToEdit }"
         @close="selectedWishToEdit = null"
+        @save="onAddWish($event)"
       />
+      </div>
     </div>
   </template>
   
@@ -60,11 +66,14 @@
   import ModalWrapper from '@/components/ModalWrapper.vue'
   import SingleWishWallStyle from '@/components/SingleWishWallStyle.vue'
   import WishForm from '@/components/WishForm.vue'
+  import AddWish from '@/components/AddWish.vue'
+  import { useGeneralCollectionStore } from '@/stores/generalDocsStore'
   
   const { error : errorDocument, isPending : isPendingDocAction, _deleteDoc } = useDocument("wishes");
   
   const { user, userRole } = useAuth()
   const wishlistStore = useWishlistStore()
+  const generalStore = useGeneralCollectionStore()
   
   const filter = ref('all')
 
@@ -101,7 +110,7 @@
   const filterButtonClass = (name) => {
     return [
       'px-4 py-2 rounded font-semibold transition',
-      filter.value === name ? 'bg-blue-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
+      filter.value === name ? 'bg-blue-800 text-white' : 'bg-gray-200 hover:bg-gray-300'
     ]
   }
   
@@ -111,9 +120,9 @@
     // optional modal or expand action
   }
 
-const handleRemove = async (id) => {
-  console.log("handleRemove", id);
-  const success = await _deleteDoc(id);
+const handleRemove = async () => {
+  console.log("handleRemove", selectedWish.value?.id);
+  const success = await _deleteDoc(selectedWish.value?.id);
 
   console.log("result", success)
 
@@ -129,5 +138,21 @@ const handleRemove = async (id) => {
 
   }, 3000);
 };
-  </script>
+
+const VUE_APP_UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL
+const boardBackground = computed(() => {
+  const doc = generalStore?.document('wishes')
+  const images = doc?.images_url || []
+  const mainImg = images.find(img => img.role === 'main')
+  return mainImg ? `${VUE_APP_UPLOAD_BASE_URL}${mainImg.url}` : ''
+})
+
+function onAddWish(status) {
+    console.log('Wish was added!', status)
+
+    if (status === 'success') {
+      selectedWishToEdit.value = null
+  } 
+}
+</script>
   

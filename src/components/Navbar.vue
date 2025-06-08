@@ -14,27 +14,19 @@
           דף הבית
         </router-link>
         <router-link
-          to="/all-wishes"
-          class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
-          :class="$route.path === '/all-wishes' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
+        to="/add-wish"
+        class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
+        :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
         >
-          כל הברכות
-        </router-link>
-        <router-link
-          to="/add-wish"
-          class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
-          :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
-        >
-          הוסף ברכה
-        </router-link>
-        <router-link
-          to="/all-wishes"
-          class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent router-link-exact-active:text-blue-700 router-link-exact-active:border-blue-500"
-          exact
-          :class="$route.path === '/all-wishes' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
-        >
-          🎉 אלבום הברכות של אורלי
-        </router-link>
+        הוסף ברכה
+      </router-link>
+      <router-link
+        to="/all-wishes"
+        class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
+        :class="$route.path === '/all-wishes' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
+      >
+        כל הברכות
+      </router-link>
         <router-link
           v-if="user && userRole === 'admin'"
           to="/admin/images"
@@ -44,7 +36,14 @@
           Images Panel
         </router-link>
       </div>
-  
+
+      <!-- Centered Title -->
+      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <span class="text-[14px] md:text-2xl font-extrabold text-gray-500 flex items-center gap-2">
+          🎉 אלבום הברכות של אורלי ✨
+        </span>
+      </div>
+
       <!-- Desktop Auth Buttons -->
       <div class="hidden md:flex items-center gap-4">
         <div v-if="user">
@@ -84,42 +83,43 @@
             >
               דף הבית
             </router-link>
-            <router-link
-              to="/all-wishes"
-              class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
-              :class="$route.path === '/all-wishes' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
-              @click="mobileMenuOpen = false"
-            >
-            🎉 אלבום הברכות של אורלי
-            </router-link>
-            <router-link
-              to="/add-wish"
-              class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
-              :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
-              @click="mobileMenuOpen = false"
-            >
-              הוסף ברכה
-            </router-link>
+            
             
             <router-link
-              v-if="user && userRole === 'admin'"
-              to="/admin/images"
-              class="w-3/4 text-center py-3 rounded font-semibold border-b-2 border-transparent transition-all"
-              :class="$route.path === '/admin/images' ? 'bg-purple-100 text-purple-800 border-purple-800' : 'text-purple-400 hover:bg-purple-50'"
-              @click="mobileMenuOpen = false"
-              exact
+            to="/add-wish"
+            class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
+            :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
+            @click="mobileMenuOpen = false"
             >
-              Images Panel
-            </router-link>
-            <div class="w-3/4 flex flex-col gap-4 mt-4">
-              <div v-if="user">
-                <span class="block text-center text-base mb-2">שלום, {{ user.displayName }}</span>
-                <button @click="logout; mobileMenuOpen = false" class="w-full flex items-center justify-center gap-1 text-red-500 hover:text-red-700 text-base py-2">
-                  <LogOut class="w-5 h-5" />
-                  <span>התנתק</span>
-                </button>
-              </div>
-              <div v-else>
+            הוסף ברכה
+          </router-link>
+          <router-link
+            to="/all-wishes"
+            class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
+            :class="$route.path === '/all-wishes' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
+            @click="mobileMenuOpen = false"
+          >
+            כל הברכות
+          </router-link>
+          <router-link
+          v-if="user && userRole === 'admin'"
+          to="/admin/images"
+          class="w-3/4 text-center py-3 rounded font-semibold border-b-2 border-transparent transition-all"
+          :class="$route.path === '/admin/images' ? 'bg-purple-100 text-purple-800 border-purple-800' : 'text-purple-400 hover:bg-purple-50'"
+          @click="mobileMenuOpen = false"
+          exact
+          >
+          Images Panel
+        </router-link>
+          <div class="w-3/4 flex flex-col gap-4 mt-4">
+            <div v-if="user">
+              <span class="block text-center text-base mb-2">שלום, {{ user.displayName }}</span>
+              <button @click="logout; mobileMenuOpen = false" class="w-full flex items-center justify-center gap-1 text-red-500 hover:text-red-700 text-base py-2">
+                <LogOut class="w-5 h-5" />
+                <span>התנתק</span>
+              </button>
+            </div>
+            <div v-else>
                 <button @click="loginWithGoogle; mobileMenuOpen = false" class="w-full flex items-center justify-center gap-1 text-blue-500 hover:text-blue-700 text-base py-2">
                   <LogIn class="w-5 h-5" />
                   <span>התחבר</span>

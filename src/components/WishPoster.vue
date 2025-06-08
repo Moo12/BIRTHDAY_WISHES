@@ -1,38 +1,55 @@
 <template>
-    <div
-      class="bg-yellow-100 shadow-md p-4 w-full max-w-[220px] rounded break-words cursor-pointer hover:scale-105 transition-transform duration-200"
-      :style="randomStyle"
-      @click="$emit('open', wish.id)"
-    >
-      <p class="text-sm font-semibold">{{ wish.name }}</p>
-      <p class="text-xs mt-1 text-gray-700">{{ previewText }}</p>
+  <div class="w-full max-w-1/4 aspect-square rounded overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-200" @click="$emit('open', wish.id)">
+    <div :style="cardStyle" class="shadow-md p-4 w-full h-full rounded break-words flex flex-col justify-center items-center">
+      <div class="m-[15%]">
+        <p class="text-sm font-semibold">{{ wish.name }}</p>
+        <p class="text-xs mt-1 text-gray-700">{{ previewText }}</p>
+      </div>
     </div>
-  </template>
-  
-  <script setup>
-  import {computed} from 'vue'
+  </div>
+</template>
 
-  const props = defineProps({
-    wish: {
-        type: Object,
-        required: true
-        },
-    });
+<script setup>
+import { computed } from 'vue'
+import { useGeneralCollectionStore } from '@/stores/generalDocsStore'
 
-  
-  const previewText = computed(() =>
-    props.wish.content?.slice(0, 80) + (props.wish.content?.length > 80 ? '...' : '')
-  )
-  
-  // Add some rotation/random poster-like feel
-  const tiltOptions = ['rotate-[-2deg]', 'rotate-[1deg]', 'rotate-[3deg]', 'rotate-[-1deg]']
-  const randomTilt = tiltOptions[Math.floor(Math.random() * tiltOptions.length)]
-  
-  const colorOptions = ['bg-yellow-100', 'bg-pink-100', 'bg-blue-100', 'bg-green-100']
-  const color = colorOptions[Math.floor(Math.random() * colorOptions.length)]
-  
-  const randomStyle = {
-    transform: `rotate(${[-2, -1, 1, 2][Math.floor(Math.random() * 4)]}deg)`
+const props = defineProps({
+  wish: {
+    type: Object,
+    required: true
+  },
+})
+
+const previewText = computed(() =>
+  props.wish.content?.slice(0, 80) + (props.wish.content?.length > 80 ? '...' : '')
+)
+
+const generalStore = useGeneralCollectionStore()
+const VUE_APP_UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL
+
+const wishCardBackground = computed(() => {
+  const doc = generalStore?.document('wishes')
+  const images = doc?.images_url || []
+  const subImg = images.find(img => img.role === 'sub')
+  return subImg ? `${VUE_APP_UPLOAD_BASE_URL}${subImg.url}` : ''
+})
+
+const colorOptions = ['#FEF08A', '#FDE68A', '#FECACA', '#A7F3D0']
+const color = colorOptions[Math.floor(Math.random() * colorOptions.length)]
+
+const randomStyle = computed(() => {
+  const degs = [-2, -1, 1, 2]
+  const rotate = degs[Math.floor(Math.random() * degs.length)]
+  return {
+    transform: `rotate(${rotate}deg)`
   }
-  </script>
+})
+
+const cardStyle = computed(() => {
+  const base = wishCardBackground.value
+    ? { backgroundImage: `url('${wishCardBackground.value}')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }
+    : { backgroundColor: color }
+  return { ...base, ...randomStyle.value, position: 'relative', zIndex: 2 }
+})
+</script>
   
