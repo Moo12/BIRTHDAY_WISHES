@@ -1,6 +1,6 @@
 <template>
-    <div class="my-20 w-full border-purple-400 border-[1px] rounded-lg p-6 flex flex-col justify-center bg-white">
-        <form @submit.prevent="handleSubmit" class="w-full">
+    <div class="my-20 w-full p-6 flex flex-col justify-center bg-white">
+        <form @submit.prevent="handleSubmit" class="w-full" :disabled="isPending">
             <fieldset :disabled="isPending" class="w-full flex flex-col gap-8 justify-center">
                 <div class=" w-full">
                     <p class="text-right">שם:</p>
@@ -8,7 +8,7 @@
                 </div>
                 <div class=" w-full" >
                     <p class="text-right">הברכה שלי:</p>
-                    <textarea v-model="content" placeholder="איחוליך..." class="w-full border p-2 rounded"></textarea>
+                    <textarea v-model="content" placeholder="איחוליך..." class="w-full border p-2 rounded" rows="10"></textarea>
                 </div>
 
                 <div v-if=afterMounted>
@@ -17,7 +17,7 @@
                         :initialImages="images"
                         :uploadBaseUrl="UPLOAD_BASE_URL"
                         @update:images="handleImagesUpdate"
-                        />
+                    />
                 </div>
                 <div class="w-full flex items-center gap-2">
                     <label for="public" class="text-right" dir="rtl">
@@ -26,13 +26,13 @@
                     <input type="checkbox" v-model="publicWish" id="public" />
                 </div>
                 <div class="flex justify-between w-full">
-                    <button class="btn rounded-md border-2 px-4 border-black" @click="emit('save', 'cancel')">ביטול</button>
+                    <button class="btn rounded-md border-2 px-4 border-black" type="button" @click="emit('cancel')">ביטול</button>
                     <button class="btn rounded-md border-2 px-4 border-black" type="submit">{{submitText}}</button>
                 </div>
             </fieldset>
         </form>
         <div v-if="isPending">
-           Uploading Wish
+            <img  class="w-full h-full object-cover" :src="`${UPLOAD_BASE_URL}${generalDocsStore.document(loadingDocName)?.images_url[0]}`" />
         </div>
         <div v-if="isSubmitEnded">
             <p
@@ -54,16 +54,24 @@ import { computed, ref, onMounted } from 'vue';
 import useCollection from '@/composables/useCollection'
 import useAuth from "@/composables/useAuth"
 import WishImages from "@/components/WishImages.vue";
+import WheelSpinner from "@/components/WheelSpinner.vue"
+import { useGeneralCollectionStore } from '@/stores/generalDocsStore'
 
-const emit = defineEmits(["save"]);
+
+
+const emit = defineEmits(["save", "cancel"]);
 const props = defineProps({
-  wishDoc: { type: Object, default: null }  // Editable wish (or null)
+    wishDoc: { type: Object, default: null }  // Editable wish (or null)
 });
 
 const { user } = useAuth()
 const { error : errAddToDb, pending : pendingDb, addDocImp } = useCollection()
 
+const generalDocsStore = useGeneralCollectionStore()
+
+const loadingDocName = "loading"
 const UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL;
+
 const images = ref([]);  // All image URLs
 const name = ref("")
 const content = ref("")
@@ -126,7 +134,7 @@ async function handleImagesUpdate(imagesStatus) {
     }
 
     const wish = {
-        name: name.value,
+        name: name.value || user.value.displayName,
         content: content.value,
         images_url: [...images.value],
         user: user?.value.uid || "anonymous",
@@ -149,6 +157,7 @@ async function handleImagesUpdate(imagesStatus) {
             emit("save", "success");
             actionState.value.state = "";
             actionState.value.status = "";
+
         }, 3000);
     } 
     else {

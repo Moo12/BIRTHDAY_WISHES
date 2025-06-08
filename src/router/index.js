@@ -23,11 +23,31 @@ const routes = [
     meta: { requiresRole: ['celebrant', 'admin'] }
   },
   {
-    path: '/user-view',
-    name: 'UserView',
-    component: UserView,
+    path: '/home-page',
+    name: 'HomePage',
+    component: () => import('@/views/WelcomeView.vue'),
     meta: { requiresRole: ['user', 'admin'] }
   },
+  // New: All Wishes (open to all authenticated users)
+  {
+    path: '/all-wishes',
+    name: 'AllWishes',
+    component: () => import('@/views/UserView.vue'),
+    meta: { requiresRole: ['user', 'admin'] }
+  },
+  // New: Add Wish (open to all authenticated users)
+  {
+    path: '/add-wish',
+    name: 'AddWish',
+    component: () => import('@/views/addWishView.vue'),
+    meta: { requiresRole: ['user', 'admin'] }
+  },
+  // Home (redirects based on role)
+  {
+    path: '/',
+    name: 'Home',
+    component: UserView,
+  },// A placeholder component, as it will always redirect
   {
     path: '/admin',
     name: 'Admin',
@@ -39,24 +59,13 @@ const routes = [
         name: "Images",
         component: AdminImagesManager,
       },
-      {
-        path: "user-view",
-        name: "admin-user-view",
-        component: UserView,
-      },
-
     ]
-  },
-  // Add a root path route, which will be handled by beforeEach for redirection
-  {
-    path: '/',
-    name: 'Home',
-    component: UserView, // A placeholder component, as it will always redirect
   },
 ]
 
 // Redirect to signin on logout if currently on protected route
 watch(() => user.value , (newUser) => {
+  console.log("router watch")
   // If user becomes authenticated AND is currently on the signin page,
   // redirect them to the root path (which will then lead to their dashboard via beforeEach)
   if (newUser && router.currentRoute.value.path === '/signin') {
@@ -138,20 +147,22 @@ router.beforeEach(async (to, from, next) => {
       case 'celebrant':
         return next('/celebrant-view');
       case 'user':
-        return next('/user-view');
+        return next('/home-page');
       default:
         // Fallback for authenticated users with no recognized role
-        return next('/user-view');
+        return next('/home-page');
     }
   }
 
   // 5. Role-based access control for protected routes
   if (requiresAuth) {
     const allowedRoles = to.meta.requiresRole;
+    console.log("to.path", to.path)
     if (!allowedRoles.includes(currentUserRole)) {
       // User is authenticated but does not have the required role for this route.
       // Redirect them to the root path, which will then trigger the
       // role-based redirection to their appropriate dashboard.
+      console.log("route to /")
       return next('/');
     }
   }

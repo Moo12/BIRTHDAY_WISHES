@@ -5,68 +5,71 @@
             <label>תמונות </label>
             <label>{{ configStore.maxImagesPerWish }}  / {{ numberOfUsedImages }}</label>
         </div>
-        <div class="flex gap-2 flex-wrap">
-            <div v-for="(img, i) in currentImages" :key="i" class="relative w-32 h-32">
-            <img :src="`${uploadBaseUrl}${img}`" class="w-full h-full object-cover rounded border" />
-            <button
-                type="button"
-                class="absolute top-0 right-0 bg-white rounded-bl px-1 text-red-500"
-                @click="removeImage(img)"
-            >
-                ✕
-            </button>
+        <div class="grid md:grid-cols-6 sm:grid-cols-4 grid-cols-2 gap-3 rounded overflow-hidden" >
+            <div v-for="(img, index) in currentImages" :key="index" class="w-full">
+                <div class="flex flex-col w-full justify-between items-center h-full gap-2">
+                    <div class="relative">
+                        <img :src="`${uploadBaseUrl}${img}`" class="w-full h-auto object-cover rounded border" />
+                        <button
+                            type="button"
+                            class="absolute top-0 right-0 bg-transparent font-black rounded-bl px-1 text-black"
+                            @click="removeImage(img)"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                    <slot name="extra-inputs" :url="img" :index="index"></slot>
+                </div>
             </div>
         </div>
-    <div>
-        <!-- Hidden file input -->
-        <input
-        type="file"
-        id="fileInput"
-        ref="fileInput"
-        @change="handleFilesSelected"
-        class="hidden"
-        multiple />
+        <div>
+            <!-- Hidden file input -->
+            <input
+            type="file"
+            id="fileInput"
+            ref="fileInput"
+            @change="handleFilesSelected"
+            class="hidden"
+            multiple />
 
-        <!-- Custom label styled as button with icon -->
-        <label
-        for="fileInput"
-        class="btn inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded"
-        >
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-        >
-            <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12v8m0 0l-4-4m4 4l4-4m0-5a4 4 0 10-8 0"
-            />
-        </svg>
-        העלאת תמונות
-        </label>
-    </div>
-
-
-      <!-- Selected files preview with status -->
-      <div v-if="selectedFiles.length" class="flex flex-col gap-1 mt-2 text-sm">
-        <div
-          v-for="file in selectedFiles"
-          :key="file.name"
-          class="flex justify-between items-center gap-4"
-        >
-          <span>{{ file.name }}</span>
-          <span>
-            <span v-if="uploadStatuses[file.name] === 'uploading'" class="text-blue-500">Uploading...</span>
-            <span v-else-if="uploadStatuses[file.name] === 'done'" class="text-green-600">Uploaded ✓</span>
-            <span v-else-if="uploadStatuses[file.name] === 'failed'" class="text-red-600">Failed ✗</span>
-            <span v-else class="text-gray-500">Pending</span>
-          </span>
+            <!-- Custom label styled as button with icon -->
+            <label
+            for="fileInput"
+            class="btn inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded"
+            >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+            >
+                <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12v8m0 0l-4-4m4 4l4-4m0-5a4 4 0 10-8 0"
+                />
+            </svg>
+            העלאת תמונות
+            </label>
         </div>
-      </div>
+        <!-- Selected files preview with status -->
+        <div v-if="selectedFiles.length" class="flex flex-col gap-1 mt-2 text-sm">
+            <div
+            v-for="file in selectedFiles"
+            :key="file.name"
+            class="flex justify-between items-center gap-4"
+            >
+            <span>{{ file.name }}</span>
+            <span>
+                <span v-if="uploadStatuses[file.name] === 'uploading'" class="text-blue-500">Uploading...</span>
+                <span v-else-if="uploadStatuses[file.name] === 'done'" class="text-green-600">Uploaded ✓</span>
+                <span v-else-if="uploadStatuses[file.name] === 'failed'" class="text-red-600">Failed ✗</span>
+                <span v-else class="text-gray-500">Pending</span>
+            </span>
+            </div>
+        </div>
     </div>
 </template>
 <script setup>
@@ -223,14 +226,14 @@
         statusReport[file.name] = { status: fileStatus, msg: errMsg}
     }
 
-    const hasImageErrors = Object.values(statusReport || {}).some(status => status.statue !== "done");
+    const hasImageErrors = Object.values(statusReport || {}).some(status => status.status !== "done");
 
     if (!hasImageErrors){
 
         selectedFiles.value = [];
     }
 
-    console.log("hasImageErrors", hasImageErrors)
+    console.log("hasImageErrors", typeof(hasImageErrors), statusReport)
 
     // Clear selected files & input
     if (fileInput.value) fileInput.value.value = "";
