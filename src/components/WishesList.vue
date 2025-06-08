@@ -8,7 +8,7 @@
             <SingleWish :wish="wish" :editable="user?.uid === wish.user"  @remove="handleRemove" @edit="handleEdit"/>
         </div>
         <div v-if="currentEditedWishDoc" class="fixed inset-0 z-[10] w-full bg-white h-[60hv]" dir="rtl">
-            <div class="relative w-[50%] mx-auto">
+            <div class="relative w-[90%] md:w-[60%] mx-auto">
                 <WishForm @save="handleSave" :wishDoc="currentEditedWishDoc"/>
             </div>
         </div>

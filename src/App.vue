@@ -2,7 +2,7 @@
   <div class="" dir="rtl">
     <Navbar/>
   </div>
-  <div class="" dir="rtl">
+  <div class="min-h-[90vh]" dir="rtl">
     <router-view/>
   </div>
 </template>

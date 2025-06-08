@@ -25,8 +25,7 @@
         v-if="currentDoc"
         :key="currentDoc.id"
         :document="currentDoc"
-        @upload="handleUpload"
-      />
+        @upload="handleUpload" />
 
       <div>
         {{msgLabel}}
@@ -81,9 +80,12 @@
         }
 
         addDocImp("general", doc, currentDoc.value.id)
+
+        msgLabel.value = "sucessfully updated images"
     }
     else{
         console.error("error update images")
+        msgLabel.value = "error update images"
 
     }
 

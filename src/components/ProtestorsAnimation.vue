@@ -43,7 +43,7 @@
         if (window.innerWidth < 768) { // Example breakpoint for mobile (Tailwind's 'md')
             maxProtestors.value = 10; // Fewer protestors on mobile
         } else {
-            maxProtestors.value = 30;
+            maxProtestors.value = 20;
         }
 
         console.log("max protestors", maxProtestors.value)
@@ -70,7 +70,7 @@
       ...selectedProtestor,
       id: Date.now() + Math.random(), // Ensure unique ID for transition-group
       x: getRandomInt(5, 95),       // Random X position (percentage from left)
-      y: getRandomInt(5, 70),       // Random Y position (percentage from bottom - keeps them off the very top)
+      y: getRandomInt(0, 90),       // Random Y position (percentage from bottom - keeps them off the very top)
       z: getRandomInt(1, maxProtestors), // Random z-index for overlapping effect
       scale: getRandomFloat(0.8, 1.2) // Slight scale variation
     });
@@ -81,9 +81,9 @@
     window.addEventListener('resize', setMaxProtestors); // Adjust on resize
 
      // build availableProtestors from the prop `imageSources`
-    availableProtestors.value = props.imageSources?.map((src, index) => ({
+    availableProtestors.value = props.imageSources?.map((image, index) => ({
         id: index, // Simple unique ID
-        src: src,
+        src: image.url,
         alt: `Protestor image ${index + 1}` // Generic alt text, could be passed as another prop if needed
     }));
 

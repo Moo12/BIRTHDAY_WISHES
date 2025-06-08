@@ -1,22 +1,31 @@
 <template>
-    
     <div class="flex flex-col items-center justify-center">
         <WishImages v-if="mountedCallbackEnd"
         ref="wishImagesRef"
         :initialImages="images"
         :isWishImages = "false"
         :uploadBaseUrl="UPLOAD_BASE_URL"
-        @update:images="handleImagesUpdate"
-        />
+        @update:images="handleImagesUpdate" >
+            <template #extra-inputs="slotProps">
+                <div class="text-xs space-y-1">
+                    <label>
+                        role:
+                        <select v-model="imageRoles[slotProps.url]" class="border rounded p-1 text-sm">
+                        <option v-for="option in roleOptions" :key="option" :value="option">
+                            {{ option }}
+                        </option>
+                        </select>
+                    </label>
+                </div>
+            </template>
+        </WishImages>
         <div>
             <button @click="handleSubmit" class="btn" :disable="actionState.state === 'process'" >Upload Images</button>
         </div>
         <div v-if="actionState.state === 'end'">
-            {{uploadEndStr}}
+            {{ uploadEndStr }}
         </div>
     </div>
-
-
 </template>
 
 <script setup>
@@ -33,6 +42,10 @@ const UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL;
 
 const wishImagesRef = ref(null);
 
+const imageRoles = ref({});
+
+const roleOptions = ["main", "sub"];
+
 const images = ref([])
 
 const mountedCallbackEnd = ref(false)
@@ -45,7 +58,12 @@ const actionState = ref ({
 onMounted(() => {
     console.log("images:", props.document)
 
-    images.value = props.document?.images_url || [];
+    images.value = props.document?.images_url.map(item => item?.url || item) || [];
+
+    // Set default roles for existing images (all "sub" by default)
+    props.document?.images_url.forEach(item => {
+        imageRoles.value[item?.url || item] = item?.role || "none";
+    });
 
     mountedCallbackEnd.value = true
 })
@@ -79,11 +97,21 @@ const handleImagesUpdate = async (imagesStatus) => {
     }
 
     actionState.value.state = "end"
+
+    console.log(imagesStatus.images)
+
+    // Map image URLs with their roles
+    const imagesWithRoles = imagesStatus.images.map(url => ({
+        url,
+        role: imageRoles.value[url] || "none"
+    }));
+
+    console.log("imagesWithRoles", imagesWithRoles)
     
     let response = {
         status: actionState.value.status,
         data: {
-            images: imagesStatus.images
+             images: imagesWithRoles
         }
     }
 
