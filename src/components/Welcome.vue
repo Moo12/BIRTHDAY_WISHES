@@ -1,7 +1,15 @@
 <template>
     <div class="welcome-page-wrapper min-h-screen flex flex-col justify-between relative">
-        <div v-if="!generalCollectionStore.loading && !generalCollectionStore.error" class="absolute inset-0 z-0">
-            <ProtestAnimation class="absolute inset-0" :imageSources=generalCollectionStore.document(protestorsDocId)?.images_url 
+        <div v-if="!generalCollectionStore.loading && !generalCollectionStore.error" class="absolute h-screen inset-0 z-0">
+            <ProtestAnimation class="absolute inset-0"
+            :imageSources=generalCollectionStore.document(protestorsDocId)?.images_url
+            :allowedAreas="[
+            { xMin: 0, xMax: 90, yMin: 0, yMax: 20 },    // Top strip (top 0-20%)
+            { xMin: 0, xMax: 90, yMin: 80, yMax: 100 },  // Bottom strip (bottom 20%)
+            { xMin: 0, xMax: 20, yMin: 20, yMax: 80 },    // Left side (middle height, left 20%)
+            { xMin: 80, xMax: 100, yMin: 20, yMax: 80 }   // Right side (middle height, right 20%)
+        ]"
+    
             uploadBaseUrl="https://bon-orledet.org/"/>
         </div>
 
@@ -9,7 +17,7 @@
             <img class="w-full h-auto object-cover" :src="`${UPLOAD_BASE_URL}${generalCollectionStore.document(protestorsLoginDocId)?.images_url}`" />
         </div>
             
-        <div class="w-full h-[60vh] my-[10%] flex flex-col justify-between items-center" 
+        <div class="w-full my-[10%] flex flex-col justify-between items-center" name="text" 
             style="background-image: url('https://images.unsplash.com/photo-1541888946743-a65796b4618e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); background-size: cover; background-position: center;">
 
 
@@ -47,12 +55,8 @@
 </template>
 
 <script setup>
-    
-    import useAuth from '@/composables/useAuth'
     import ProtestAnimation from '@/components/ProtestorsAnimation'
     import { useGeneralCollectionStore } from '@/stores/generalDocsStore'
-
-    const { user, loginWithGoogle } = useAuth()
 
     const generalCollectionStore = useGeneralCollectionStore()
 

@@ -27,16 +27,22 @@
       </div>
       
       <!-- Wish Mural -->
-      <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center ">
-        <div v-for="wish in visibleWishes" :key="wish.id">
+      <div class="relative w-full h-[50vh] bg-white/10 rounded-lg overflow-hidden">
+        <div
+          v-for="wish in wishesWithPosition"
+          :key="wish.id"
+          :style="getWishStyle(wish)"
+          @mouseenter="hoveredWishId = wish.id"
+          @mouseleave="hoveredWishId = null"
+        >
           <WishPoster
             :wish="wish"
             :isMine="user?.uid === wish.user"
             @open="handleOpenWish(wish)"
-            />
+          />
         </div>
         <ModalWrapper v-if="selectedWish"
-          :component="SingleWishWallStyle"
+          :component="SingleWish"
           :componentProps="{ wish: selectedWish, editable: user?.uid === selectedWish.user }"
           @close="selectedWish = null"
           @edit="selectedWishToEdit = selectedWish; selectedWish = null; console.log('edit wishes wall', selectedWishToEdit)"
@@ -58,13 +64,13 @@
   </template>
   
   <script setup>
-  import { computed, ref } from 'vue'
+  import { computed, ref, reactive, onMounted, onUnmounted } from 'vue'
   import WishPoster from './WishPoster.vue'
   import { useWishlistStore } from '@/stores/wishListStore'
   import useAuth from '@/composables/useAuth'
   import useDocument from '@/composables/useDocument'
   import ModalWrapper from '@/components/ModalWrapper.vue'
-  import SingleWishWallStyle from '@/components/SingleWishWallStyle.vue'
+  import SingleWish from '@/components/SingleWish.vue'
   import WishForm from '@/components/WishForm.vue'
   import AddWish from '@/components/AddWish.vue'
   import { useGeneralCollectionStore } from '@/stores/generalDocsStore'
@@ -83,6 +89,19 @@
   const deleteStatus = ref('')
 
   const nameFilter = ref("")
+  
+  const wishPositions = reactive({})
+  
+  const hoveredWishId = ref(null)
+
+  const isMobile = ref(window.innerWidth < 768)
+
+  function handleResize() {
+    isMobile.value = window.innerWidth < 768
+  }
+
+  onMounted(() => window.addEventListener('resize', handleResize))
+  onUnmounted(() => window.removeEventListener('resize', handleResize))
   
   const visibleWishes = computed(() => {
     if (!wishlistStore.documents || !user.value) return []
@@ -140,6 +159,7 @@ const handleRemove = async () => {
 };
 
 const VUE_APP_UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL
+
 const boardBackground = computed(() => {
   const doc = generalStore?.document('wishes')
   const images = doc?.images_url || []
@@ -154,5 +174,42 @@ function onAddWish(status) {
       selectedWishToEdit.value = null
   } 
 }
+
+// Generate random positions and angles for each wish
+const wishesWithPosition = computed(() => {
+  return visibleWishes.value.map((wish) => {
+    if (!wishPositions[wish.id]) {
+      // Generate and save a new position for this wish
+      wishPositions[wish.id] = {
+        x: Math.random() * 80 + 5, // 5% to 85%
+        y: Math.random() * 50 + 5, // 5% to 75%
+        angle: Math.random() * 16 - 8 // -8 to +8 degrees
+      }
+    }
+    return { ...wish, ...wishPositions[wish.id] }
+  })
+})
+
+function getWishStyle(wish) {
+  const style = {
+    position: 'absolute',
+    left: wish.x + '%',
+    top: wish.y + '%',
+    transform: `rotate(${wish.angle}deg)`,
+    transition: 'transform 0.3s',
+    zIndex: hoveredWishId.value === wish.id ? 50 : 1
+  }
+  if (isMobile.value) {
+    style.width = '35%'
+    style.minWidth = '50%'
+    style.maxWidth = '60%'
+  } else {
+    style.width = '18%'
+    style.minWidth = '12%'
+    style.maxWidth = '22%'
+  }
+  return style
+}
+
 </script>
   

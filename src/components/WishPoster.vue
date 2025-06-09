@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-1/4 aspect-square rounded overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-200" @click="$emit('open', wish.id)">
+  <div class="w-full aspect-square rounded overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-200" @click="$emit('open', wish.id)">
     <div :style="cardStyle" class="shadow-md p-4 w-full h-full rounded break-words flex flex-col justify-center items-center">
       <div class="m-[15%]">
         <p class="text-sm font-semibold">{{ wish.name }}</p>
@@ -20,9 +20,11 @@ const props = defineProps({
   },
 })
 
-const previewText = computed(() =>
-  props.wish.content?.slice(0, 80) + (props.wish.content?.length > 80 ? '...' : '')
-)
+const previewText = computed(() => {
+  const isMobile = window.innerWidth < 768;
+  const chars = isMobile ? 40 : 80;
+  return props.wish.content?.slice(0, chars) + (props.wish.content?.length > chars ? '...' : '')
+})
 
 const generalStore = useGeneralCollectionStore()
 const VUE_APP_UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL

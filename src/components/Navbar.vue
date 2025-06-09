@@ -62,7 +62,7 @@
       </div>
   
       <!-- Hamburger Button (Mobile) -->
-      <button class="md:hidden flex items-center z-30" @click="mobileMenuOpen = true">
+      <button class="md:hidden flex items-center z-[10]" @click="mobileMenuOpen = true">
         <svg class="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
@@ -70,7 +70,7 @@
   
       <!-- Mobile Nav Overlay -->
       <transition name="fade">
-        <div v-if="mobileMenuOpen" class="fixed inset-0 bg-white z-40  gap-8 text-xl">
+        <div v-if="mobileMenuOpen" class="fixed inset-0 bg-white z-[10]  gap-8 text-xl">
           <div class="mt-[30%] flex flex-col items-center">
 
             <button class="absolute top-4 right-10 text-3xl" @click="mobileMenuOpen = false">✕</button>

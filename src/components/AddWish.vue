@@ -78,8 +78,8 @@ function handleImageSave(status) {
 
 <style scoped>
 .add-wish-btn {
-  color: #fadadd;
-  background-color: #702963;
+  background-color: #fadadd;
+  color: #702963;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   transition: transform 0.2s ease-in-out;
   animation: soft-pulse 1.5s infinite;
@@ -90,8 +90,8 @@ function handleImageSave(status) {
   animation: none;
   transform: scale(1.1);
   opacity: 0.7;
-  color: #702963;
-  background-color: #fadadd;
+  background-color: #702963;
+  color: #fadadd;
 }
 @keyframes soft-pulse {
   0% { transform: scale(1); }

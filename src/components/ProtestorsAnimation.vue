@@ -9,13 +9,13 @@
           class="protestor-character absolute"
           :style="{
             left: protestor.x + '%',
-            bottom: protestor.y + '%',
+            top: protestor.y + '%',
             zIndex: protestor.z, // For overlapping effect
             transform: `scale(${protestor.scale})` // Add slight scale variation
           }"
         >
           <img :src="`${uploadBaseUrl}${protestor.src}`" :alt="protestor.alt" 
-          class="max-w-[80px] sm:max-w-[120px] md:max-w-[150px] lg:max-w-[250px] h-auto object-contain" />
+          class="max-w-[80px] sm:max-w-[120px] md:max-w-[150px] lg:max-w-[250px] h-auto object-cover" />
         </div>
       </transition-group>
     </div>
@@ -32,7 +32,16 @@
         default: () => [] // Provide a default empty array
         },
         uploadBaseUrl: { type: String, required: true },
+        allowedAreas: {
+            type: Array,
+            default: () => [
+                // Default: allow anywhere
+                { xMin: 5, xMax: 95, yMin: 10, yMax: 90 }
+            ]
+        }
     });
+
+    const UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL;
 
     const availableProtestors = ref([]);
     const activeProtestors = ref([]);
@@ -41,9 +50,9 @@
   
     const setMaxProtestors = () => {
         if (window.innerWidth < 768) { // Example breakpoint for mobile (Tailwind's 'md')
-            maxProtestors.value = 10; // Fewer protestors on mobile
+            maxProtestors.value = 8; // Fewer protestors on mobile
         } else {
-            maxProtestors.value = 20;
+            maxProtestors.value = 15;
         }
 
         console.log("max protestors", maxProtestors.value)
@@ -54,6 +63,16 @@
   const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
   const getRandomFloat = (min, max) => Math.random() * (max - min) + min;
   
+  // Helper: pick a random area, then a random point in it
+  function getRandomPositionInAllowedArea() {
+    const areas = props.allowedAreas.length ? props.allowedAreas : [{ xMin: 5, xMax: 95, yMin: 10, yMax: 90 }];
+    const area = areas[getRandomInt(0, areas.length - 1)];
+    return {
+      x: getRandomInt(area.xMin, area.xMax),
+      y: getRandomInt(area.yMin, area.yMax)
+    };
+  }
+
   const spawnProtestor = () => {
     if (activeProtestors.value.length >= maxProtestors.value) {
       // Optionally remove oldest protestor to make room for new ones,
@@ -65,13 +84,17 @@
     const randomIndex = getRandomInt(0, availableProtestors.value.length - 1);
     const selectedProtestor = availableProtestors.value[randomIndex];
 
-  
+    // Use the new helper for position
+    const { x, y } = getRandomPositionInAllowedArea();
+
+    console.log(`x ${x} y ${y}`)
+
     activeProtestors.value.push({
       ...selectedProtestor,
       id: Date.now() + Math.random(), // Ensure unique ID for transition-group
-      x: getRandomInt(5, 95),       // Random X position (percentage from left)
-      y: getRandomInt(0, 90),       // Random Y position (percentage from bottom - keeps them off the very top)
-      z: getRandomInt(1, maxProtestors), // Random z-index for overlapping effect
+      x,
+      y,
+      z: getRandomInt(1, maxProtestors.value), // Random z-index for overlapping effect
       scale: getRandomFloat(0.8, 1.2) // Slight scale variation
     });
   };
