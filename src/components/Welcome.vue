@@ -42,8 +42,9 @@
             </div>
 
             <div class="flex justify-center" v-if="!user">
-                <div class="btn bg-red-600 hover:bg-red-700 p-4 md:p-5 border-4 border-red-800 shadow-xl  origin-bottom-right rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 z-30">
-                    <button @click="loginWithGoogle"
+                <div class="btn bg-red-600 hover:bg-red-700 p-4 md:p-5 border-4 border-red-800 shadow-xl  origin-bottom-right rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 z-30"
+                    @click="loginWithGoogle(); console.log('login click')">
+                    <button
                             class="text-right btn flex items-center justify-center gap-2 text-white text-lg md:text-xl font-semibold w-full h-full">
 
                         <p class="text-center leading-tight">הצטרפו למחאה <br>ולחצו פה (התחברות ללא סיסמא )</p>
@@ -58,12 +59,16 @@
     import ProtestAnimation from '@/components/ProtestorsAnimation'
     import { useGeneralCollectionStore } from '@/stores/generalDocsStore'
 
-    const generalCollectionStore = useGeneralCollectionStore()
+    import useAuth from '@/composables/useAuth'
 
+    
+    const generalCollectionStore = useGeneralCollectionStore()
+    
     const protestorsDocId = "protestors_welcome_page"
     const protestorsLoginDocId = "login-page"
-
+    
     const UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL;
     
+    const { loginWithGoogle } = useAuth()
 
 </script>

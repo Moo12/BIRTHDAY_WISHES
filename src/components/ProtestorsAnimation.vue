@@ -87,8 +87,6 @@
     // Use the new helper for position
     const { x, y } = getRandomPositionInAllowedArea();
 
-    console.log(`x ${x} y ${y}`)
-
     activeProtestors.value.push({
       ...selectedProtestor,
       id: Date.now() + Math.random(), // Ensure unique ID for transition-group
