@@ -20,19 +20,21 @@
             </div>
             <p class="text-gray-700 text-right">{{ wish.content }}</p>
             <p class="text-sm text-gray-500">פומבי: {{ wish.public ? "כן" : "לא" }}</p>
-            <button v-if="wish?.images_url?.length" @click="expanded = !expanded" class="text-xl">
-                <span v-if="expanded">&#x25B2;</span> <!-- Up arrow -->
-                <span v-else>&#x25BC;</span>           <!-- Down arrow -->
-            </button>
-            <div v-if="expanded" class="mt-4">
-                <div class="flex gap-2 flex-wrap mt-2" >
-                    <img
-                        v-for="(img, i) in wish.images_url"
-                        :key="i"
-                        :src="`${UPLOAD_BASE_URL}${img}`"
-                        @click="currentImageIndex = i; imagesModalOpen = true; "
-                        class="w-32 h-32 object-cover rounded border"
-                    />
+            <div class="flex flex-col gap-2">
+                <button v-if="wish?.images_url?.length" @click="expanded = !expanded" class="text-xl">
+                    <span v-if="expanded">&#x25B2;</span> <!-- Up arrow -->
+                    <span v-else class="text-sm">&#x25BC; תמונות</span>           <!-- Down arrow -->
+                </button>
+                <div v-if="expanded" class="">
+                    <div class="flex gap-2 flex-wrap" >
+                        <img
+                            v-for="(img, i) in wish.images_url"
+                            :key="i"
+                            :src="`${UPLOAD_BASE_URL}${img}`"
+                            @click="currentImageIndex = i; imagesModalOpen = true; "
+                            class="w-32 h-32 object-cover rounded border btn"
+                        />
+                    </div>
                 </div>
             </div>
       </div>

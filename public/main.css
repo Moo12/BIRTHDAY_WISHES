@@ -840,6 +840,22 @@ video {
   z-index: 99;
 }
 
+.z-\[150\]{
+  z-index: 150;
+}
+
+.z-\[0\]{
+  z-index: 0;
+}
+
+.z-\[151\]{
+  z-index: 151;
+}
+
+.col-span-10{
+  grid-column: span 10 / span 10;
+}
+
 .m-auto{
   margin: auto;
 }
@@ -1542,6 +1558,10 @@ video {
 
 .grid-cols-6{
   grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.grid-cols-12{
+  grid-template-columns: repeat(12, minmax(0, 1fr));
 }
 
 .flex-col{

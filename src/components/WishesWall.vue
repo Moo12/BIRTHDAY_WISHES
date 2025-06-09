@@ -175,32 +175,57 @@ function onAddWish(status) {
   } 
 }
 
+const latestMine = computed(() => {
+  return visibleWishes.value
+    .filter(wish => wish.user === user.value.uid)
+    .sort((a, b) => new Date(b.metadata?.created_at || 0) - new Date(a.metadata?.created_at || 0))
+    .slice(0, 2)
+    .map(wish => wish.id)
+})
+
 // Generate random positions and angles for each wish
 const wishesWithPosition = computed(() => {
+  
   return visibleWishes.value.map((wish) => {
+    
+    let zIndex = 1
+    if (latestMine.value[0] === wish.id) zIndex = 100
+    else if (latestMine.value[1] === wish.id) zIndex = 99
+    
     if (!wishPositions[wish.id]) {
       // Generate and save a new position for this wish
       const xMax = isMobile.value ? 60 : 80
       const yMax = isMobile.value ? 40 : 50
 
+
+
       wishPositions[wish.id] = {
         x: Math.random() * xMax, // 5% to 85%
         y: Math.random() * yMax, // 5% to 75%
-        angle: Math.random() * 16 - 8 // -8 to +8 degrees
+        angle: Math.random() * 16 - 8,// -8 to +8 degrees
       }
     }
-    return { ...wish, ...wishPositions[wish.id] }
+    return { ...wish, ...wishPositions[wish.id], zIndex}
   })
 })
 
 function getWishStyle(wish) {
+  const maxLatestMineZ = 100; // or whatever you use for latestMine[0]
+  const hoveredZ = maxLatestMineZ + 1;
+
+  let zIndex = wish.zIndex || 1;
+
+  if (hoveredWishId.value === wish.id) {
+    zIndex = hoveredZ;
+  }
+
   const style = {
     position: 'absolute',
     left: wish.x + '%',
     top: wish.y + '%',
     transform: `rotate(${wish.angle}deg)`,
     transition: 'transform 0.3s',
-    zIndex: hoveredWishId.value === wish.id ? 50 : 1
+    zIndex: zIndex
   }
   if (isMobile.value) {
     style.width = '35%'

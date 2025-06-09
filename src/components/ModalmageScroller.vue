@@ -1,6 +1,6 @@
 <template>
     <div
-      class="fixed inset-0 bg-gray-100 z-[99]  h-[100vh] w-[100vw] flex items-center justify-center"
+      class="fixed inset-0 bg-gray-100 z-[150]  h-[100vh] w-[100vw] flex items-center justify-center"
       @wheel="onScroll"
       @touchstart="onTouchStart"
       @touchend="onTouchEnd"
@@ -8,7 +8,7 @@
       <!-- Close Button -->
       <button
         @click="$emit('close')"
-        class="z-[1000] absolute top-4 left-4  text-black rounded-full w-10 h-10 flex items-center justify-center transition"
+        class="z-[151] absolute top-4 left-4  text-black rounded-full w-10 h-10 flex items-center justify-center transition"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
              viewBox="0 0 24 24" stroke="currentColor">
@@ -17,7 +17,7 @@
         </svg>
       </button>
   
-      <div class="w-full max-w-screen-xl grid  md:grid-cols-12 grid-cols-6 gap-2 items-center mx-[30px] md:mx-[45px]">
+      <div class="w-full max-w-screen-xl grid  grid-cols-12 gap-2 items-center mx-[30px] md:mx-[45px]">
         <!-- Right Arrow -->
         <div class="flex justify-center items-center ">
           <button
@@ -29,7 +29,7 @@
       </div>
       
       <!-- Image -->
-      <div class="md:col-span-10 flex justify-center items-center overflow-hidden">
+      <div class="col-span-10 flex justify-center items-center overflow-hidden">
         <img
         :src="`${UPLOAD_BASE_URL}${images[currentIndex].image}`"
         alt="Image"

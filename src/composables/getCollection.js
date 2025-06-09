@@ -1,25 +1,41 @@
 // composables/useFirestoreCollection.js
 import { ref } from 'vue';
 import { projectFireStore } from '../firebase/config';
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 
 const useFirestoreCollection = () => {
   const documents = ref(null);
   const error = ref(null);
   let unsub = null; // unsubscribe function
 
-  // Main subscription method — accepts collection name + conditions
-  const subscribeToCollection = (collectionName, conditions = []) => {
+  /**
+   * Subscribe to a Firestore collection with optional conditions and ordering.
+   * @param {string} collectionName - The Firestore collection name.
+   * @param {Array} conditions - Array of where conditions (optional).
+   * @param {Object} orderByObj - { field: string, order: 'asc' | 'desc' } (optional).
+   */
+  const subscribeToCollection = (collectionName, conditions = [], orderByObj = null) => {
     // Prevent duplicate listeners
     if (unsub) unsub();
 
     try {
       let collectionRef = collection(projectFireStore, collectionName);
 
+      const queries = [];
+
+      // Add where conditions
       if (conditions.length > 0) {
-        const queries = conditions.map((cond) =>
-          where(cond.field, cond.operator, cond.value)
-        );
+        conditions.forEach((cond) => {
+          queries.push(where(cond.field, cond.operator, cond.value));
+        });
+      }
+
+      // Add orderBy if provided
+      if (orderByObj && orderByObj.field) {
+        queries.push(orderBy(orderByObj.field, orderByObj.order || 'desc'));
+      }
+
+      if (queries.length > 0) {
         collectionRef = query(collectionRef, ...queries);
       }
 

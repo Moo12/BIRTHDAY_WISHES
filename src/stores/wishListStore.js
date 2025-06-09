@@ -17,7 +17,7 @@ export const useWishlistStore = defineStore('wishlist', {
         subscribeToCollection,
       } = useFirestoreCollection()
 
-      subscribeToCollection('wishes')
+      subscribeToCollection('wishes', [], { field: 'metadata.created_at', order: 'desc' });
 
       // Use a watcher to update store state reactively
       watch(
