@@ -33,7 +33,7 @@
 
     watchEffect(() => {
         if (user.value) {
-            router.push("/")
+            router.push("/add-wish")
         }
     })
 

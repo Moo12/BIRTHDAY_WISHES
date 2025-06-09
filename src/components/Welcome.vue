@@ -69,6 +69,6 @@
     
     const UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL;
     
-    const { loginWithGoogle } = useAuth()
+    const { user, loginWithGoogle } = useAuth()
 
 </script>
