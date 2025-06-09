@@ -1,6 +1,6 @@
 <template>
     <div
-    class="p-4 md:p-10 bg-neutral-100 min-h-screen relative opacity-90"
+    class="p-4 md:p-10 bg-neutral-100  relative opacity-90"
     :style="boardBackground ? { backgroundImage: `url('${boardBackground}')`, backgroundSize: 'cover', backgroundPosition: 'top', backgroundRepeat: 'no-repeat' } : {}">
       <div class="mt-[15%] md:mt-[7%]">
         <AddWish @wish-added="onAddWish"/>
@@ -180,9 +180,12 @@ const wishesWithPosition = computed(() => {
   return visibleWishes.value.map((wish) => {
     if (!wishPositions[wish.id]) {
       // Generate and save a new position for this wish
+      const xMax = isMobile.value ? 60 : 80
+      const yMax = isMobile.value ? 40 : 50
+
       wishPositions[wish.id] = {
-        x: Math.random() * 80 + 5, // 5% to 85%
-        y: Math.random() * 50 + 5, // 5% to 75%
+        x: Math.random() * xMax, // 5% to 85%
+        y: Math.random() * yMax, // 5% to 75%
         angle: Math.random() * 16 - 8 // -8 to +8 degrees
       }
     }

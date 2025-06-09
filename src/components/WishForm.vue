@@ -1,5 +1,16 @@
 <template>
-    <div class="my-20 w-full p-6 flex flex-col justify-center bg-white">
+    <div class="relative my-20 w-full p-6 flex flex-col justify-center bg-white">
+        <div v-if="isSubmitEnded">
+            <p
+            :class="{
+                'text-green-600': actionState.status === 'success',
+                'text-red-600': actionState.status === 'failure',
+            }"
+            class="text-center mt-4 font-semibold"
+            >
+            {{ uploadEndStr }}
+            </p>
+        </div>
         <form @submit.prevent="handleSubmit" class="w-full" :disabled="isPending">
             <fieldset :disabled="isPending" class="w-full flex flex-col gap-8 justify-center">
                 <div class=" w-full">
@@ -33,18 +44,11 @@
             </fieldset>
         </form>
         <div v-if="isPending">
-            <img  class="w-full h-full object-cover" :src="`${UPLOAD_BASE_URL}${generalDocsStore.document(loadingDocName)?.images_url[0]}`" />
-        </div>
-        <div v-if="isSubmitEnded">
-            <p
-            :class="{
-                'text-green-600': actionState.status === 'success',
-                'text-red-600': actionState.status === 'failure',
-            }"
-            class="text-center mt-4 font-semibold"
-            >
-            {{ uploadEndStr }}
-            </p>
+            <div class="fixed inset-0 bg-black/70 flex items-center justify-center">
+                <div class="w-[5%]">
+                    <WheelSpinner />
+                </div>
+            </div>
         </div>
     </div>
 </template>

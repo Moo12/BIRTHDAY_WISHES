@@ -1,5 +1,5 @@
 <template>
-    <div class="border-2 px-8 py-4 rounded-md min-h-[50vh] shadow-md min-w-full max-w-full">
+    <div class="border-2 px-8 py-4 rounded-md md:min-h-[30vh] shadow-md min-w-full max-w-full">
         <div class="flex flex-col gap-10 items-start w-full" >
             <div class="flex flex-col items-start w-full">
                 <div v-if="editable" class="flex justify-between w-full">

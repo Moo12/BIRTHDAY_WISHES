@@ -1,20 +1,20 @@
 <template>
-    <div class="my-4 md:my-6">
+    <div class="">
         <div v-if="isLoading">
-            <SpinnerWrapper />
+            <LoaderWrapper />
         </div>
         <div v-else>
-            <WishesWall class="w-full"/>
+            <WishesWall class="w-full h-full"/>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue"
+import { computed } from "vue"
 import { useConfigStore } from '@/stores/configStore'
 import { useWishlistStore } from '@/stores/wishListStore'
 import WishesWall from '@/components/WishesWall.vue'
-import SpinnerWrapper from '@/components/SpinnerWrapper.vue'
+import LoaderWrapper from '@/components/LoaderWrapper.vue'
 
 
 const configStore = useConfigStore()
