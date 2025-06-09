@@ -1,6 +1,6 @@
 <template>
     <div
-    class="p-4 md:p-10 bg-neutral-100  relative opacity-90"
+    class="p-4 md:p-10 bg-neutral-100  relative opacity-90 min-h-[90vh]"
     :style="boardBackground ? { backgroundImage: `url('${boardBackground}')`, backgroundSize: 'cover', backgroundPosition: 'top', backgroundRepeat: 'no-repeat' } : {}">
       <div class="mt-[15%] md:mt-[7%]">
         <AddWish @wish-added="onAddWish"/>

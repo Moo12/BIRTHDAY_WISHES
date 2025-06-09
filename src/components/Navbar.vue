@@ -18,7 +18,7 @@
         class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
         :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
         >
-        הוסף ברכה
+        הוספת ברכה
       </router-link>
       <router-link
         to="/all-wishes"
@@ -91,7 +91,7 @@
             :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
             @click="mobileMenuOpen = false"
             >
-            הוסף ברכה
+            הוספת ברכה
           </router-link>
           <router-link
             to="/all-wishes"
