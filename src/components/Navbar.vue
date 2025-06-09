@@ -40,7 +40,7 @@
       <!-- Centered Title -->
       <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <span class="text-[14px] md:text-2xl font-extrabold text-gray-500 flex items-center gap-2">
-          🎉 אלבום הברכות של אורלי ✨
+          <span class="whitespace-nowrap">🎉 אלבום הברכות של אורלי ✨</span>
         </span>
       </div>
 
