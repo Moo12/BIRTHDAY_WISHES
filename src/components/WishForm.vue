@@ -80,7 +80,7 @@ const UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL;
 const images = ref([]);  // All image URLs
 const name = ref("")
 const content = ref("")
-const publicWish = ref(false);  // ✅ New boolean field
+const publicWish = ref(true);  // ✅ New boolean field
 
 const wishImagesRef = ref(null);
 
@@ -225,7 +225,7 @@ function resetForm() {
   name.value = "";
   content.value = "";
   images.value = [];
-  publicWish.value = false;
+  publicWish.value = true;
 }
 
 
