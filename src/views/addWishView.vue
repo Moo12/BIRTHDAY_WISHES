@@ -16,7 +16,7 @@
           </p>
         </div>
       </div>
-      <AddWish @wish-added="onAddWish"/>
+      <AddWish @wish-added="onAddWish" hoverEffect="dark-to-light" colorScheme="pink" />
     </div>
   </div>
 </template>

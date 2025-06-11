@@ -3,15 +3,14 @@
     class="p-4 md:p-10 bg-neutral-100  relative opacity-90 min-h-[90vh]"
     :style="boardBackground ? { backgroundImage: `url('${boardBackground}')`, backgroundSize: 'cover', backgroundPosition: 'top', backgroundRepeat: 'no-repeat' } : {}">
       <div class="mt-[15%] md:mt-[7%]">
-        <AddWish @wish-added="onAddWish"/>
+        <AddWish @wish-added="onAddWish" colorScheme="teal" hoverEffect="dark-to-light" />
         <div v-if="deleteStatus" class="text-center text-red-600 font-semibold my-4 mx-auto">
           {{ deleteStatus }}
         </div>
       
       <!-- Filter Row -->
       <div class="mx-auto mt-[2%] flex flex-col gap-6 mb-6 justify-center items-center">
-        <div class="flex items-center gap-2">
-          <label for="nameFilter" class="font-semibold">שם:</label>
+        <div class="flex items-center justify-center gap-2">
           <input
           id="nameFilter"
           v-model="nameFilter"
@@ -129,7 +128,7 @@
   const filterButtonClass = (name) => {
     return [
       'px-4 py-2 rounded font-semibold transition',
-      filter.value === name ? 'bg-blue-800 text-white' : 'bg-gray-200 hover:bg-gray-300'
+      filter.value === name ? 'bg-teal-800 text-white' : 'bg-teal-100 hover:bg-teal-200'
     ]
   }
   

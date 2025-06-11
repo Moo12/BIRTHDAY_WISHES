@@ -13,7 +13,7 @@
             uploadBaseUrl="https://bon-orledet.org/"/>
         </div>
 
-        <div v-if="!generalCollectionStore.loading && !generalCollectionStore.error" class="absolute w-[20%] top-[30%] right-[8%] z-50">
+        <div v-if="!generalCollectionStore.loading && !generalCollectionStore.error" class="absolute w-[20%] top-[30%] right-[8%]">
             <img class="w-full h-auto object-cover" :src="`${UPLOAD_BASE_URL}${generalCollectionStore.document(protestorsLoginDocId)?.images_url}`" />
         </div>
             
@@ -22,19 +22,19 @@
 
 
             <div class="p-6 md:p-8 flex flex-col items-center justify-center overflow-hidden">
-                <div class="top-[15%] left-[5%] md:top-[10%] md:left-[15%] bg-gray-800 border-blue-300 p-4 md:p-6 border-4 shadow-xl -rotate-3 transform origin-top-left rounded-lg md:rounded-xl z-20">
+                <div class="top-[15%] left-[5%] md:top-[10%] md:left-[15%] bg-gray-800 border-blue-300 p-4 md:p-6 border-4 shadow-xl -rotate-3 transform origin-top-left rounded-lg md:rounded-xl">
                     <h1 class="text-4xl md:text-8xl font-bold drop-shadow-lg text-blue-300  whitespace-nowrap font-graffiti">
                         מהפכת שנות השבעים
                     </h1>
                 </div>
         
-                <div class="mt-6 right-[5%] md:top-[30%] md:right-[10%] bg-gray-800 p-3 md:p-4  border-blue-300 border-2 shadow-md rotate-6 transform origin-top-right rounded-md md:rounded-lg z-10">
+                <div class="mt-6 right-[5%] md:top-[30%] md:right-[10%] bg-gray-800 p-3 md:p-4  border-blue-300 border-2 shadow-md rotate-6 transform origin-top-right rounded-md md:rounded-lg">
                     <p class="text-right md:text-4xl text-xl font-bold  drop-shadow-lg text-blue-300  border-blue-300 whitespace-nowrap font-graffiti">
                         הצטרפו לתנועה - קולכם חשוב!
                     </p>
                 </div>
         
-                <div class="self-start mr-12 bottom-[20%] left-[5%] md:bottom-[15%] md:left-[10%] bg-gray-800 border-blue-300 p-3 md:p-4 border-2 shadow-md -rotate-4 transform origin-bottom-left rounded-md md:rounded-lg z-10">
+                <div class="self-start mr-12 bottom-[20%] left-[5%] md:bottom-[15%] md:left-[10%] bg-gray-800 border-blue-300 p-3 md:p-4 border-2 shadow-md -rotate-4 transform origin-bottom-left rounded-md md:rounded-lg">
                     <p class="text-right text-xl md:text-4xl font-bold drop-shadow-lg  border-blue-300 text-blue-300 whitespace-nowrap font-graffiti">
                         כי רק ביחד ננצח!
                     </p>
@@ -42,7 +42,7 @@
             </div>
 
             <div class="flex justify-center" v-if="!user">
-                <div class="btn bg-red-600 hover:bg-red-700 p-4 md:p-5 border-4 border-red-800 shadow-xl  origin-bottom-right rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 z-30"
+                <div class="btn bg-red-600 hover:bg-red-700 p-4 md:p-5 border-4 border-red-800 shadow-xl  origin-bottom-right rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75"
                     @click="loginWithGoogle(); console.log('login click')">
                     <button
                             class="text-right btn flex items-center justify-center gap-2 text-white text-lg md:text-xl font-semibold w-full h-full">
@@ -51,17 +51,22 @@
                     </button>
                 </div>
             </div>
+            <div v-else class="w-full flex justify-center">
+                <AddWish @wish-added="onAddWish" colorScheme="pink" hoverEffect="dark-to-light" />
+            </div>
         </div>
     </div>
 </template>
 
 <script setup>
+    import { useRouter } from 'vue-router'
     import ProtestAnimation from '@/components/ProtestorsAnimation'
     import { useGeneralCollectionStore } from '@/stores/generalDocsStore'
+    import AddWish from '@/components/AddWish.vue'
 
     import useAuth from '@/composables/useAuth'
 
-    
+    const router = useRouter()
     const generalCollectionStore = useGeneralCollectionStore()
     
     const protestorsDocId = "protestors_welcome_page"
@@ -70,5 +75,9 @@
     const UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL;
     
     const { user, loginWithGoogle } = useAuth()
+
+    function onAddWish() {
+        router.push('/all-wishes')
+    }
 
 </script>
