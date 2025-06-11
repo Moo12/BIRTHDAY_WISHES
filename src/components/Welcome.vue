@@ -17,7 +17,7 @@
             <img class="w-full h-auto object-cover" :src="`${UPLOAD_BASE_URL}${generalCollectionStore.document(protestorsLoginDocId)?.images_url}`" />
         </div>
             
-        <div class="w-full my-[10%] flex flex-col justify-between items-center" name="text" 
+        <div class="w-full gap-10 my-[10%] flex flex-col justify-between items-center" name="text" 
             style="background-image: url('https://images.unsplash.com/photo-1541888946743-a65796b4618e?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); background-size: cover; background-position: center;">
 
 
@@ -41,19 +41,22 @@
                 </div>
             </div>
 
-            <div class="flex justify-center" v-if="!user">
-                <div class="btn bg-red-600 hover:bg-red-700 p-4 md:p-5 border-4 border-red-800 shadow-xl  origin-bottom-right rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75"
-                    @click="loginWithGoogle(); console.log('login click')">
-                    <button
-                            class="text-right btn flex items-center justify-center gap-2 text-white text-lg md:text-xl font-semibold w-full h-full">
-
-                        <p class="text-center leading-tight">הצטרפו למחאה <br>ולחצו פה (התחברות ללא סיסמא )</p>
-                    </button>
+            <div>
+                <div class="flex justify-center" v-if="!user">
+                    <div class="btn bg-red-600 hover:bg-red-700 p-4 md:p-5 border-4 border-red-800 shadow-xl  origin-bottom-right rounded-xl md:rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75"
+                        @click="loginWithGoogle(); console.log('login click')">
+                        <button
+                                class="text-right btn flex items-center justify-center gap-2 text-white text-lg md:text-xl font-semibold w-full h-full">
+    
+                            <p class="text-center leading-tight">הצטרפו למחאה <br>ולחצו פה (התחברות ללא סיסמא )</p>
+                        </button>
+                    </div>
+                </div>
+                <div v-else class="w-full flex justify-center">
+                    <AddWish @wish-added="onAddWish" colorScheme="pink" hoverEffect="dark-to-light" />
                 </div>
             </div>
-            <div v-else class="w-full flex justify-center">
-                <AddWish @wish-added="onAddWish" colorScheme="pink" hoverEffect="dark-to-light" />
-            </div>
+
         </div>
     </div>
 </template>
