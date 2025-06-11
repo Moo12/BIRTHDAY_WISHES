@@ -32,8 +32,13 @@ const VUE_APP_UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL
 const wishCardBackground = computed(() => {
   const doc = generalStore?.document('wishes')
   const images = doc?.images_url || []
-  const subImg = images.find(img => img.role === 'sub')
-  return subImg ? `${VUE_APP_UPLOAD_BASE_URL}${subImg.url}` : ''
+  const subImgs = images?.filter(img => img?.role === 'sub') || []
+
+  if (!subImgs.length) return ''
+
+  const randomIndex = Math.floor(Math.random() * subImgs.length)
+  const subImg = subImgs[randomIndex]
+  return subImg?.url ? `${VUE_APP_UPLOAD_BASE_URL}${subImg.url}` : ''
 })
 
 const colorOptions = ['#FEF08A', '#FDE68A', '#FECACA', '#A7F3D0']
