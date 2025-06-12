@@ -14,6 +14,7 @@
                             type="button"
                             class="absolute top-0 right-0 bg-transparent font-black rounded-bl px-1 text-black"
                             @click="removeImage(img)"
+                         
                         >
                             ✕
                         </button>
@@ -25,49 +26,56 @@
         <div>
             <!-- Hidden file input -->
             <input
-            type="file"
-            id="fileInput"
-            ref="fileInput"
-            @change="handleFilesSelected"
-            class="hidden"
-            multiple />
+                type="file"
+                id="fileInput"
+                ref="fileInput"
+                @change="handleFilesSelected"
+                class="hidden"
+                multiple
+            />
 
             <!-- Custom label styled as button with icon -->
             <label
-            for="fileInput"
-            class="btn inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded"
+                for="fileInput"
+                class="btn inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded"
             >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-            >
-                <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12v8m0 0l-4-4m4 4l4-4m0-5a4 4 0 10-8 0"
-                />
-            </svg>
-            העלאת תמונות
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12v8m0 0l-4-4m4 4l4-4m0-5a4 4 0 10-8 0"
+                    />
+                </svg>
+                העלאת תמונות
             </label>
         </div>
-        <!-- Selected files preview with status -->
+        <!-- Selected files preview with status and image preview -->
         <div v-if="selectedFiles.length" class="flex flex-col gap-1 mt-2 text-sm">
             <div
-            v-for="file in selectedFiles"
-            :key="file.name"
-            class="flex justify-between items-center gap-4"
+                v-for="file in selectedFiles"
+                :key="file.name"
+                class="flex items-center gap-4"
             >
-            <span>{{ file.name }}</span>
-            <span>
-                <span v-if="uploadStatuses[file.name] === 'uploading'" class="text-blue-500">Uploading...</span>
-                <span v-else-if="uploadStatuses[file.name] === 'done'" class="text-green-600">Uploaded ✓</span>
-                <span v-else-if="uploadStatuses[file.name] === 'failed'" class="text-red-600">Failed ✗</span>
-                <span v-else class="text-gray-500">Pending</span>
-            </span>
+                <img
+                    v-if="file.type && file.type.startsWith('image/')"
+                    :src="filePreview(file)"
+                    alt="preview"
+                    class="w-16 h-16 object-cover rounded border"
+                />
+                <span v-else>{{ file.name }}</span>
+                <span>
+                    <span v-if="uploadStatuses[file.name] === 'uploading'" class="text-blue-500">Uploading...</span>
+                    <span v-else-if="uploadStatuses[file.name] === 'done'" class="text-green-600">Uploaded..</span>
+                    <span v-else-if="uploadStatuses[file.name] === 'failed'" class="text-red-600">Failed</span>
+                    
+                </span>
             </div>
         </div>
     </div>
@@ -248,6 +256,11 @@
     const numberOfUsedImages = computed(() => {
         return (currentImages.value?.length || 0)
     });
+
+    // Helper to generate preview URL for a file
+    function filePreview(file) {
+        return URL.createObjectURL(file)
+    }
 
     // expose saveImages method to parent
     defineExpose({ saveImages, currentImages, clearImages, saveGeneralImages });

@@ -21,11 +21,7 @@
             <p class="text-gray-700 text-right">{{ wish.content }}</p>
             <p class="text-sm text-gray-500">פומבי: {{ wish.public ? "כן" : "לא" }}</p>
             <div class="flex flex-col gap-2">
-                <button v-if="wish?.images_url?.length" @click="expanded = !expanded" class="text-xl">
-                    <span v-if="expanded">&#x25B2;</span> <!-- Up arrow -->
-                    <span v-else class="text-sm">&#x25BC; תמונות</span>           <!-- Down arrow -->
-                </button>
-                <div v-if="expanded" class="">
+                <div v-if="wish?.images_url?.length" class="">
                     <div class="flex gap-2 flex-wrap" >
                         <img
                             v-for="(img, i) in wish.images_url"
@@ -62,8 +58,6 @@
 
   const emit = defineEmits(["edit", "remove"]);
   
-  const expanded = ref(false)
-  
   const formatDate = (ts) => {
     if (!ts || !ts.toDate) return "N/A"
     const date = ts.toDate()
@@ -74,7 +68,6 @@
     images.value = props.wish?.images_url?.map( (item, index) => {
         return { image: item, index: index }
     })
-
 
     console.log("images to scroller", images.value)
   });
