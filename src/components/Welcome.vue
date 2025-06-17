@@ -52,7 +52,7 @@
                         </button>
                     </div>
                 </div>
-                <div v-else class="w-full flex justify-center">
+                <div v-else-if="userRole !== 'celebrant'" class="w-full flex justify-center">
                     <AddWish @wish-added="onAddWish" colorScheme="pink" hoverEffect="dark-to-light" />
                 </div>
             </div>
@@ -77,7 +77,7 @@
     
     const UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL;
     
-    const { user, loginWithGoogle } = useAuth()
+    const { user, loginWithGoogle, userRole } = useAuth()
 
     function onAddWish() {
         router.push('/all-wishes')

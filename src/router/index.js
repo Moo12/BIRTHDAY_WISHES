@@ -19,7 +19,7 @@ const routes = [
     path: '/home-page',
     name: 'HomePage',
     component: () => import('@/views/WelcomeView.vue'),
-    meta: { requiresRole: ['user', 'admin'] }
+    meta: { requiresRole: ['user', 'admin', 'celebrant'] }
   },
   // New: All Wishes (open to all authenticated users)
   {
@@ -210,7 +210,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (isAuthenticated && currentUserRole === 'celebrant') {
     if (to.path === '/celebrant') {
-      return next('/celebrant/all-wishes-board');
+      return next('/celebrant/all-wishes-list');
     } 
     else if (to.path.startsWith('/celebrant/')) {
       const celebrantRoute = routes.find(route => route.path === '/celebrant');

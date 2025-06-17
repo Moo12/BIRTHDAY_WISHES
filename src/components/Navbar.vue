@@ -24,7 +24,7 @@
         <!-- Celebrant Wishes Dropdown -->
         <router-link
           v-if="user && (userRole === 'celebrant' || userRole === 'admin')"
-          to="/celebrant/all-wishes-board"
+          to="/celebrant/all-wishes-list"
           class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
           :class="{
             'bg-blue-100 text-blue-700 border-blue-500': $route.path.startsWith('/celebrant/'),
