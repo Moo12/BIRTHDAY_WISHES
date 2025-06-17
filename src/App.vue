@@ -8,6 +8,8 @@
 </template>
 
 <script setup>
+import { watch } from 'vue'
+
 import Navbar from './components/Navbar.vue';
 import { onMounted } from 'vue'
 import { useConfigStore } from '@/stores/configStore'

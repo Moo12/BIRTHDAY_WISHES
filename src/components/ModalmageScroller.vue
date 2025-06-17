@@ -29,12 +29,8 @@
       </div>
       
       <!-- Image -->
-      <div class="col-span-10 flex justify-center items-center overflow-hidden">
-        <img
-        :src="`${UPLOAD_BASE_URL}${images[currentIndex].image}`"
-        alt="Image"
-        class="block h-auto w-full md:w-auto object-cover transition duration-300"
-        />
+      <div class="col-span-10 flex justify-center items-center ">
+        <MediaDisplay :src="images[currentIndex].image" :controls="true"/>
       </div>
       
         <!-- Left Arrow -->
@@ -53,6 +49,8 @@
   <script setup>
   import { ref } from 'vue'
   import { ArrowRight, ArrowLeft } from "lucide-vue-next";
+
+  import MediaDisplay from './MediaDisplay.vue'
   
   const props = defineProps({
     images: {

@@ -1,10 +1,24 @@
 <template>
-    <div class="flex flex-col items-center justify-center">
-        <p class="text-right">איחולייך</p>
-        <WishesList/>
+        <!-- Main Content (Changes Based on Route) -->
+    <div class="">
+        <router-view />
     </div>
 </template>
 
 <script setup>
-import WishesList from '@/components/WishesList.vue'
+import { onMounted } from 'vue'
+import { useWishlistStore } from '@/stores/wishListStore'
+import useAuth from '@/composables/useAuth'
+
+const wishlistStore = useWishlistStore()
+const { user } = useAuth()
+
+onMounted(() => {
+    wishlistStore.setUserUid(user.value?.uid || null)
+
+    wishlistStore.setReadFilter('all')
+    wishlistStore.setFilter('all')
+})
+
+
 </script>

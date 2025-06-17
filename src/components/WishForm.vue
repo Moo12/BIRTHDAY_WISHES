@@ -106,6 +106,8 @@ onMounted(() => {
         publicWish.value = props.wishDoc.public || false;
         images.value = props.wishDoc.images_url || [];
 
+        console.log("images", images.value)
+
         submitText.value = " עדכנ.י ברכה"
 
         currentWishId.value = props.wishDoc.id

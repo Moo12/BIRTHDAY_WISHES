@@ -1,242 +1,76 @@
 <template>
-    <div
-    class="p-4 md:p-10 bg-neutral-100  relative opacity-90 min-h-[90vh]"
-    :style="boardBackground ? { backgroundImage: `url('${boardBackground}')`, backgroundSize: 'cover', backgroundPosition: 'top', backgroundRepeat: 'no-repeat' } : {}">
-      <div class="mt-[15%] md:mt-[7%]">
-        <AddWish @wish-added="onAddWish" colorScheme="teal" hoverEffect="dark-to-light" />
-        <div v-if="deleteStatus" class="text-center text-red-600 font-semibold my-4 mx-auto">
-          {{ deleteStatus }}
+    <div class="p-4 md:p-10 bg-neutral-100 relative"
+      :style="boardBackground ? { backgroundImage: `url('${boardBackground}')`, backgroundSize: 'cover', backgroundPosition: 'top', backgroundRepeat: 'no-repeat' } : {}">
+        <!-- Slot for all controls -->
+        <div class="mt-[15%] md:mt-[4%] z-[120]">
+          <slot name="controls"></slot>
         </div>
       
-      <!-- Filter Row -->
-      <div class="mx-auto mt-[2%] flex flex-col gap-6 mb-6 justify-center items-center">
-        <div class="flex items-center justify-center gap-2">
-          <input
-          id="nameFilter"
-          v-model="nameFilter"
-          type="text"
-          placeholder="חפש.י לפי שם..."
-          class="border rounded px-2 py-1 text-sm"
-          />
-        </div>
-        <div class="gap-4 flex items-center justify-between">
-          <button @click="filter = 'all'" :class="filterButtonClass('all')">כל הברכות</button>
-          <button @click="filter = 'mine'" :class="filterButtonClass('mine')">שלי</button>
-        </div>
-      </div>
-      
-      <!-- Wish Mural -->
-      <div class="relative w-full h-[50vh] bg-white/10 rounded-lg overflow-hidden">
-        <div
-          v-for="wish in wishesWithPosition"
-          :key="wish.id"
-          :style="getWishStyle(wish)"
-          @mouseenter="hoveredWishId = wish.id"
-          @mouseleave="hoveredWishId = null"
-        >
-          <WishPoster
-            :wish="wish"
-            :isMine="user?.uid === wish.user"
-            @open="handleOpenWish(wish)"
-          />
-        </div>
+        <WishesBoard @onWishClick="handleWishClick" />
+        <!-- Wish Mural -->
         <ModalWrapper v-if="selectedWish"
-          :component="SingleWish"
-          :componentProps="{ wish: selectedWish, editable: user?.uid === selectedWish.user }"
-          @close="selectedWish = null"
-          @edit="selectedWishToEdit = selectedWish; selectedWish = null; console.log('edit wishes wall', selectedWishToEdit)"
-          @remove="handleRemove()"
+            :component="SingleWish"
+            :componentProps="{ wish: selectedWish, editable: user?.uid === selectedWish.user || userRole === 'admin' }"
+            @close="selectedWish = null"
+            @edit="selectedWishToEdit = selectedWish; selectedWish = null"
+            @remove="handleRemove"
         />
-      </div>
-  
 
-      <!-- Modal -->
-      <ModalWrapper
-        v-if="selectedWishToEdit"
-        :component="WishForm"
-        :componentProps="{ wishDoc: selectedWishToEdit }"
-        @close="selectedWishToEdit = null"
-        @save="onAddWish($event)"
-      />
-      </div>
+        <!-- Modal -->
+        <ModalWrapper
+            v-if="selectedWishToEdit"
+            :component="WishForm"
+            :componentProps="{ wishDoc: selectedWishToEdit }"
+            @close="selectedWishToEdit = null"
+            @save="selectedWishToEdit = null"
+        />
     </div>
-  </template>
-  
-  <script setup>
-  import { computed, ref, reactive, onMounted, onUnmounted } from 'vue'
-  import WishPoster from './WishPoster.vue'
-  import { useWishlistStore } from '@/stores/wishListStore'
-  import useAuth from '@/composables/useAuth'
-  import useDocument from '@/composables/useDocument'
-  import ModalWrapper from '@/components/ModalWrapper.vue'
-  import SingleWish from '@/components/SingleWish.vue'
-  import WishForm from '@/components/WishForm.vue'
-  import AddWish from '@/components/AddWish.vue'
-  import { useGeneralCollectionStore } from '@/stores/generalDocsStore'
-  
-  const { error : errorDocument, isPending : isPendingDocAction, _deleteDoc } = useDocument("wishes");
-  
-  const { user, userRole } = useAuth()
-  const wishlistStore = useWishlistStore()
-  const generalStore = useGeneralCollectionStore()
-  
-  const filter = ref('all')
+</template>
 
-  const selectedWish = ref(null)
-  const selectedWishToEdit = ref(null)
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useWishlistStore } from '@/stores/wishListStore'
+import useAuth from '@/composables/useAuth'
+import WishesBoard from './WishesBoard.vue'
+import SingleWish from './SingleWish.vue'
+import ModalWrapper from './ModalWrapper.vue'
+import WishForm from './WishForm.vue'
+import { useGeneralCollectionStore } from '@/stores/generalDocsStore'
 
-  const deleteStatus = ref('')
 
-  const nameFilter = ref("")
-  
-  const wishPositions = reactive({})
-  
-  const hoveredWishId = ref(null)
+const generalStore = useGeneralCollectionStore()
 
-  const isMobile = ref(window.innerWidth < 768)
 
-  function handleResize() {
-    isMobile.value = window.innerWidth < 768
-  }
+const wishlistStore = useWishlistStore()
+const { user, userRole } = useAuth()
 
-  onMounted(() => window.addEventListener('resize', handleResize))
-  onUnmounted(() => window.removeEventListener('resize', handleResize))
-  
-  const visibleWishes = computed(() => {
-    if (!wishlistStore.documents || !user.value) return []
-    let filtered = wishlistStore.documents
+const selectedWish = ref(null)
+const selectedWishToEdit = ref(null)
+const emit = defineEmits(['remove', 'openWish'])
 
-    // Filter by button (all/mine)
-    if (filter.value === 'mine') {
-      filtered = filtered.filter(doc => doc.user === user.value.uid)
-    } else if (filter.value === 'public') {
-      filtered = filtered.filter(doc => doc.public === true)
-    } else {
-      // 'all': show own + public
-      filtered = filtered.filter(doc => doc.user === user.value.uid || doc.public === true)
-    }
+// Set the current user in the store when component mounts
+onMounted(() => {
+})
 
-    // Filter by name
-    if (nameFilter.value && nameFilter.value.trim() !== "") {
-      const search = nameFilter.value.trim().toLowerCase()
-      filtered = filtered.filter(doc => (doc.name || "").toLowerCase().includes(search))
-    }
-
-    return filtered
-  })
-  
-  const filterButtonClass = (name) => {
-    return [
-      'px-4 py-2 rounded font-semibold transition',
-      filter.value === name ? 'bg-teal-800 text-white' : 'bg-teal-100 hover:bg-teal-200'
-    ]
-  }
-  
-  const handleOpenWish = (id) => {
-    console.log('Open wish:', id)
-    selectedWish.value = id
-    // optional modal or expand action
-  }
+const handleWishClick = (wish) => {
+    selectedWish.value = wish
+    console.log("handleOpenWish")
+    emit('openWish', wish)
+}
 
 const handleRemove = async () => {
-  console.log("handleRemove", selectedWish.value?.id);
-  const success = await _deleteDoc(selectedWish.value?.id);
 
-  console.log("result", success)
-
+  emit('remove', selectedWish.value?.id);
   selectedWish.value = null
-  if (success) {
-    deleteStatus.value = "האיחול נמחק בהצלחה 🗑️";
-  } else {
-    deleteStatus.value = "שגיאה במחיקת האיחול ❌";
-  }
-
-  setTimeout(() => {
-    deleteStatus.value = "";
-
-  }, 3000);
 };
 
-const VUE_APP_UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL
 
+const VUE_APP_UPLOAD_BASE_URL = process.env.VUE_APP_UPLOAD_BASE_URL
 const boardBackground = computed(() => {
   const doc = generalStore?.document('wishes')
   const images = doc?.images_url || []
   const mainImg = images.find(img => img.role === 'main')
   return mainImg ? `${VUE_APP_UPLOAD_BASE_URL}${mainImg.url}` : ''
 })
-
-function onAddWish(status) {
-    console.log('Wish was added!', status)
-
-    if (status === 'success') {
-      selectedWishToEdit.value = null
-  } 
-}
-
-const latestMine = computed(() => {
-  return visibleWishes.value
-    .filter(wish => wish.user === user.value.uid)
-    .sort((a, b) => new Date(b.metadata?.created_at || 0) - new Date(a.metadata?.created_at || 0))
-    .slice(0, 2)
-    .map(wish => wish.id)
-})
-
-// Generate random positions and angles for each wish
-const wishesWithPosition = computed(() => {
-  
-  return visibleWishes.value.map((wish) => {
-    
-    let zIndex = 1
-    if (latestMine.value[0] === wish.id) zIndex = 100
-    else if (latestMine.value[1] === wish.id) zIndex = 99
-    
-    if (!wishPositions[wish.id]) {
-      // Generate and save a new position for this wish
-      const xMax = isMobile.value ? 60 : 80
-      const yMax = isMobile.value ? 40 : 50
-
-
-
-      wishPositions[wish.id] = {
-        x: Math.random() * xMax, // 5% to 85%
-        y: Math.random() * yMax, // 5% to 75%
-        angle: Math.random() * 16 - 8,// -8 to +8 degrees
-      }
-    }
-    return { ...wish, ...wishPositions[wish.id], zIndex}
-  })
-})
-
-function getWishStyle(wish) {
-  const maxLatestMineZ = 100; // or whatever you use for latestMine[0]
-  const hoveredZ = maxLatestMineZ + 1;
-
-  let zIndex = wish.zIndex || 1;
-
-  if (hoveredWishId.value === wish.id) {
-    zIndex = hoveredZ;
-  }
-
-  const style = {
-    position: 'absolute',
-    left: wish.x + '%',
-    top: wish.y + '%',
-    transform: `rotate(${wish.angle}deg)`,
-    transition: 'transform 0.3s',
-    zIndex: zIndex
-  }
-  if (isMobile.value) {
-    style.width = '35%'
-    style.minWidth = '50%'
-    style.maxWidth = '60%'
-  } else {
-    style.width = '18%'
-    style.minWidth = '12%'
-    style.maxWidth = '22%'
-  }
-  return style
-}
-
 </script>
   

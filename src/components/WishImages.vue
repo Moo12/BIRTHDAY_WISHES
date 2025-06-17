@@ -9,12 +9,14 @@
             <div v-for="(img, index) in currentImages" :key="index" class="w-full">
                 <div class="flex flex-col w-full justify-between items-center h-full gap-2">
                     <div class="relative">
-                        <img :src="`${uploadBaseUrl}${img}`" class="w-full h-auto object-cover rounded border" />
+                        <MediaDisplay 
+                            :src="img"
+                            class="w-full h-auto rounded border"
+                        />
                         <button
                             type="button"
                             class="absolute top-0 right-0 bg-transparent font-black rounded-bl px-1 text-black"
                             @click="removeImage(img)"
-                         
                         >
                             ✕
                         </button>
@@ -32,6 +34,7 @@
                 @change="handleFilesSelected"
                 class="hidden"
                 multiple
+                accept="image/*,video/*"
             />
 
             <!-- Custom label styled as button with icon -->
@@ -53,28 +56,35 @@
                         d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12v8m0 0l-4-4m4 4l4-4m0-5a4 4 0 10-8 0"
                     />
                 </svg>
-                העלאת תמונות
+                העלאת תמונות ווידאו
             </label>
         </div>
-        <!-- Selected files preview with status and image preview -->
+        <!-- Selected files preview with status and preview -->
         <div v-if="selectedFiles.length" class="flex flex-col gap-1 mt-2 text-sm">
             <div
                 v-for="file in selectedFiles"
                 :key="file.name"
                 class="flex items-center gap-4"
             >
+                <!-- Image Preview -->
                 <img
                     v-if="file.type && file.type.startsWith('image/')"
                     :src="filePreview(file)"
                     alt="preview"
                     class="w-16 h-16 object-cover rounded border"
                 />
+                <!-- Video Preview -->
+                <video
+                    v-else-if="file.type && file.type.startsWith('video/')"
+                    :src="filePreview(file)"
+                    class="w-16 h-16 object-cover rounded border"
+                    muted
+                >video</video>
                 <span v-else>{{ file.name }}</span>
                 <span>
                     <span v-if="uploadStatuses[file.name] === 'uploading'" class="text-blue-500">Uploading...</span>
                     <span v-else-if="uploadStatuses[file.name] === 'done'" class="text-green-600">Uploaded..</span>
                     <span v-else-if="uploadStatuses[file.name] === 'failed'" class="text-red-600">Failed</span>
-                    
                 </span>
             </div>
         </div>
@@ -84,18 +94,20 @@
     import { ref, reactive, computed, defineExpose } from "vue";
     import useImage from "@/composables/useImages";
     import { useConfigStore } from '@/stores/configStore'
+    import MediaDisplay from './MediaDisplay.vue'
 
     const ERROR_MESSAGES = {
         1001: "ההתחברות נכשלה. אנא נסה/י להתחבר מחדש.",
         1002: "חסרה הרשאת התחברות. אנא התחבר/י שוב.",
         1003: "רק מנהלים יכולים להעלות תמונות לאתר.",
         1004: "המשתמש לא נמצא.",
-        1005: "הקובץ אינו תמונה חוקית.",
-        1006: "גודל התמונה חורג מהמותר.",
-        1007: "הגעת למספר המירבי של תמונות.",
+        1005: "הקובץ אינו תמונה או וידאו חוקי.",
+        1006: "גודל הקובץ חורג מהמותר.",
+        1007: "הגעת למספר המירבי של קבצים.",
         1008: "הקובץ לא נמצא.",
         1009: "מחיקת הקובץ נכשלה.",
-        1010: "שגיאה לא מוכרת"
+        1010: "קובץ וידאו חורג מהמותר.",
+        1011: "שגיאה לא מוכרת."
     };
 
     const configStore = useConfigStore()
@@ -118,13 +130,39 @@
 
     const { pending, UploadImage, UploadGeneralImage, deleteImage, deleteGeneralImage} = useImage()
 
-    const handleFilesSelected = () => {
-    const files = fileInput.value?.files;
-    selectedFiles.value = files ? Array.from(files) : [];
+    const isImageFile = (url) => {
+        const extension = url.split('.').pop().toLowerCase();
+        return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension);
+    };
 
-    selectedFiles.value.forEach((file) => {
-        uploadStatuses[file.name] = "pending";
-    });
+    const isVideoFile = (url) => {
+        const extension = url.split('.').pop().toLowerCase();
+        return ['mp4', 'webm', 'ogg'].includes(extension);
+    };
+
+    const filePreview = (file) => {
+        if (!file) return '';
+        return URL.createObjectURL(file);
+    };
+
+    const handleFilesSelected = () => {
+        const files = fileInput.value?.files;
+        if (!files) return;
+
+        
+        // Validate file types and sizes
+        const validFiles = Array.from(files).filter(file => {
+            const isValidType = file.type.startsWith('image/') || file.type.startsWith('video/');
+            console.log("isValid type", isValidType)
+            
+            return isValidType;
+        });
+        console.log("valid Files", validFiles)
+
+        selectedFiles.value = validFiles;
+        selectedFiles.value.forEach((file) => {
+            uploadStatuses[file.name] = "pending";
+        });
     };
 
     const removeImage = (imgUrl) => {
@@ -256,11 +294,6 @@
     const numberOfUsedImages = computed(() => {
         return (currentImages.value?.length || 0)
     });
-
-    // Helper to generate preview URL for a file
-    function filePreview(file) {
-        return URL.createObjectURL(file)
-    }
 
     // expose saveImages method to parent
     defineExpose({ saveImages, currentImages, clearImages, saveGeneralImages });

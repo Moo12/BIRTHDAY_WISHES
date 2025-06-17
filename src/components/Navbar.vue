@@ -14,27 +14,61 @@
           דף הבית
         </router-link>
         <router-link
-        to="/add-wish"
-        class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
-        :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
+          v-if="userRole !== 'celebrant'"
+          to="/add-wish"
+          class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
+          :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
         >
-        הוספת ברכה
-      </router-link>
-      <router-link
-        to="/all-wishes"
-        class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
-        :class="$route.path === '/all-wishes' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
-      >
-        כל הברכות
-      </router-link>
-        <router-link
-          v-if="user && userRole === 'admin'"
-          to="/admin/images"
-          class="text-purple-400 hover:text-purple-800 font-semibold py-1 px-2 border-b-2 border-transparent router-link-exact-active:text-purple-800"
-          exact
-        >
-          Images Panel
+          הוספת ברכה
         </router-link>
+        <!-- Celebrant Wishes Dropdown -->
+        <router-link
+          v-if="user && (userRole === 'celebrant' || userRole === 'admin')"
+          to="/celebrant/all-wishes-board"
+          class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
+          :class="{
+            'bg-blue-100 text-blue-700 border-blue-500': $route.path.startsWith('/celebrant/'),
+            'bg-transparent text-gray-700': !$route.path.startsWith('/celebrant/')
+          }"
+        >
+          לוח ברכות
+        </router-link>
+        <router-link
+          v-if="userRole !== 'celebrant'"
+          to="/all-wishes"
+          class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
+          :class="$route.path === '/all-wishes' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
+        >
+          כל הברכות
+        </router-link>
+        <!-- Admin Dropdown -->
+        <div v-if="user && userRole === 'admin'" class="relative group">
+          <button class="text-purple-400 hover:text-purple-800 font-semibold py-1 px-2 border-b-2 border-transparent flex items-center gap-1">
+            Admin
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-50">
+            <div class="pt-2 pb-1">
+              <div class="absolute -top-2 left-0 right-0 h-2"></div>
+              <router-link
+                to="/admin/images"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-800"
+                :class="$route.path === '/admin/images' ? 'bg-purple-100 text-purple-800' : ''"
+              >
+                Images Panel
+              </router-link>
+              <router-link
+                to="/admin/all-wishes"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-800"
+                :class="$route.path === '/admin/all-wishes' ? 'bg-purple-100 text-purple-800' : ''"
+              >
+                All Wishes
+              </router-link>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Centered Title -->
@@ -67,61 +101,56 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
       </button>
-  
-      <!-- Mobile Nav Overlay -->
-      <transition name="fade">
-        <div v-if="mobileMenuOpen" class="fixed inset-0 bg-white z-[100]  gap-8 text-xl">
-          <div class="mt-[30%] flex flex-col items-center">
+    </nav>
 
+    <!-- Mobile Nav Overlay -->
+    <Teleport to="body">
+      <transition name="fade">
+        <div v-if="mobileMenuOpen" class="fixed inset-0 bg-white z-[100] gap-8 text-xl">
+          <div class="mt-[30%] flex flex-col items-center">
             <button class="absolute top-4 right-10 text-3xl" @click="mobileMenuOpen = false">✕</button>
-            <router-link
-              to="/home-page"
-              class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
-              :class="$route.path === '/home-page' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
-              @click="mobileMenuOpen = false"
-              exact
-            >
-              דף הבית
-            </router-link>
-            
-            
-            <router-link
-            to="/add-wish"
-            class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
-            :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
-            @click="mobileMenuOpen = false"
-            >
-            הוספת ברכה
-          </router-link>
-          <router-link
-            to="/all-wishes"
-            class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
-            :class="$route.path === '/all-wishes' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
-            @click="mobileMenuOpen = false"
-          >
-            כל הברכות
-          </router-link>
-          <router-link
-          v-if="user && userRole === 'admin'"
-          to="/admin/images"
-          class="w-3/4 text-center py-3 rounded font-semibold border-b-2 border-transparent transition-all"
-          :class="$route.path === '/admin/images' ? 'bg-purple-100 text-purple-800 border-purple-800' : 'text-purple-400 hover:bg-purple-50'"
-          @click="mobileMenuOpen = false"
-          exact
-          >
-          Images Panel
-        </router-link>
-          <div class="w-3/4 flex flex-col gap-4 mt-4">
-            <div v-if="user">
-              <span class="block text-center text-base mb-2">שלום, {{ user.displayName }}</span>
-              <button @click="logout(); mobileMenuOpen = false" class="w-full flex items-center justify-center gap-1 text-red-500 hover:text-red-700 text-base py-2">
-                <LogOut class="w-5 h-5" />
-                <span>התנתק</span>
-              </button>
-            </div>
-            <div v-else>
-                <button @click="loginWithGoogle(); console.log('login click'); mobileMenuOpen = false" class="w-full flex items-center justify-center gap-1 text-blue-500 hover:text-blue-700 text-base py-2">
-                  <LogIn class="w-5 h-5" />
+            <div class="flex flex-col items-center gap-4">
+              <router-link
+                to="/home-page"
+                class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
+                :class="$route.path === '/home-page' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
+                @click="mobileMenuOpen = false"
+              >
+                דף הבית
+              </router-link>
+              <router-link
+                v-if="userRole !== 'celebrant'"
+                to="/add-wish"
+                class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
+                :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
+                @click="mobileMenuOpen = false"
+              >
+                הוספת ברכה
+              </router-link>
+              <!-- Celebrant Mobile Link -->
+              <router-link
+                v-if="user && (userRole === 'celebrant' || userRole === 'admin')"
+                to="/celebrant/all-wishes-list"
+                class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
+                :class="$route.path === '/celebrant/all-wishes-list' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
+                @click="mobileMenuOpen = false"
+              >
+                לוח ברכות
+              </router-link>
+              <router-link
+                v-else-if="userRole !== 'celebrant'"
+                to="/all-wishes"
+                class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
+                :class="$route.path === '/all-wishes' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
+                @click="mobileMenuOpen = false"
+              >
+                כל הברכות
+              </router-link>
+              <div v-if="!user" class="flex flex-col items-center gap-2 w-3/4">
+                <button
+                  @click="openLoginModal"
+                  class="w-full py-3 rounded font-bold bg-blue-500 text-white hover:bg-blue-600 transition-all"
+                >
                   <span>התחבר</span>
                 </button>
               </div>
@@ -129,12 +158,12 @@
           </div>
         </div>
       </transition>
-    </nav>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { LogIn, LogOut } from 'lucide-vue-next'
 import useAuth from '@/composables/useAuth'
@@ -142,6 +171,11 @@ import useAuth from '@/composables/useAuth'
 const { user, userRole, loginWithGoogle, logout } = useAuth()
 const mobileMenuOpen = ref(false)
 const $route = useRoute()
+
+const openLoginModal = () => {
+  mobileMenuOpen.value = false
+  loginWithGoogle()
+}
 </script>
 
 <style scoped>

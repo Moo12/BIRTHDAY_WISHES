@@ -1,23 +1,18 @@
 <template>
     <div class="min-h-screen bg-neutral-100">
-        <WishesWall @remove="onWishRemove" @open="onWishOpen">
+        <WishesWall @remove="onWishRemove" @openWish="onOpenWish">
             <template #controls>
                 <div class="flex flex-col gap-4">
-                    <div class="flex justify-center">
-                        <AddWish @wish-added="onAddWish" colorScheme="teal" hoverEffect="dark-to-light" />
-                    </div>
             
-                    <!-- Delete Status -->
-                    <div v-if="deleteStatus" class="text-center text-red-600 font-semibold my-4 mx-auto">
-                        {{ deleteStatus }}
-                    </div>
                     <div class="flex flex-col gap-4 mb-6">
                         <!-- Filter Buttons -->
                         <div class="flex gap-2 justify-center flex-wrap">
-                            <button @click="wishlistStore.setFilter('all')" 
-                                :class="filterButtonClass('all')">כל הברכות</button>
-                            <button @click="wishlistStore.setFilter('mine')" 
-                                :class="filterButtonClass('mine')">שלי</button>
+                            <button @click="wishlistStore.setReadFilter('read')" 
+                                :class="filterButtonClass('read')">נקראו</button>
+                            <button @click="wishlistStore.setReadFilter('unread')" 
+                                :class="filterButtonClass('unread')">לא נקראו</button>
+                            <button @click="wishlistStore.setReadFilter('all')" 
+                                :class="filterButtonClass('all')">הכל</button>
                         </div>
 
                         <!-- Name Search -->
@@ -40,34 +35,40 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import WishesWall from '@/components/WishesWall.vue'
 import AddWish from '@/components/AddWish.vue'
 import { useWishlistStore } from '@/stores/wishListStore'
 import useAuth from '@/composables/useAuth'
 import useDocument from '@/composables/useDocument'
 
-const { _deleteDoc } = useDocument("wishes")
+const { _deleteDoc, _updateDoc } = useDocument("wishes")
 
 const wishlistStore = useWishlistStore()
 const { user } = useAuth()
 const deleteStatus = ref('')
 const searchName = ref('')
 
-// Set the current user in the store when component mounts
-onMounted(() => {
-    wishlistStore.setUserUid(user.value?.uid || null)
+onUnmounted(() => {
+    wishlistStore.setReadFilter('all')
+    wishlistStore.setNameFilter('')
 })
 
 const filterButtonClass = (name) => {
     return [
       'px-4 py-2 rounded font-semibold transition',
-      wishlistStore.currentFilter === name ? 'bg-teal-800 text-white' : 'bg-teal-100 hover:bg-teal-200'
+      wishlistStore.currentReadFilter === name ? 'bg-teal-800 text-white' : 'bg-teal-100 hover:bg-teal-200'
     ]
   }
 
 const handleNameSearch = () => {
     wishlistStore.setNameFilter(searchName.value)
+}
+
+const onOpenWish = (wish) => {
+    console.log("onOpenWish", wish.metadata)
+    
+    _updateDoc({ metadata: { ...wish.metadata, read: true } }, wish.id)
 }
 
 const onAddWish = () => {

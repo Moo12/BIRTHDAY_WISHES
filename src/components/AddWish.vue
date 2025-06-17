@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-col items-center justify-center gap-4 z-[9]">
     <div class="relative inline-block">
-      <button
+      <button v-if="userRole"
         class="add-wish-btn"
         @click="isCreateWish = true"
-        :disabled="userNumberOfWishes === maxWishes"
-        @mouseenter="isHoveredAndDisabled = userNumberOfWishes === maxWishes"
+        :disabled="userNumberOfWishes === maxWishes && userRole !== 'admin'"
+        @mouseenter="isHoveredAndDisabled = userNumberOfWishes === maxWishes && userRole !== 'admin'"
         @mouseleave="isHoveredAndDisabled = false"
         :style="buttonStyles" >
         <p class="text-[26px] font-semibold px-4 py-2">{{ buttonText }}</p>
@@ -17,7 +17,7 @@
         הגעת למספר הברכות המקסימלי
       </div>
     </div>
-    <div>
+    <div v-if="createStatus" class="text-center text-white font-semibold my-4 mx-auto">
       {{ createStatus }}
     </div>
     <ModalWrapper
@@ -36,6 +36,8 @@ import { useWishlistStore } from '@/stores/wishListStore'
 import useAuth from '@/composables/useAuth'
 import ModalWrapper from '@/components/ModalWrapper.vue'
 import WishForm from '@/components/WishForm.vue'
+
+const { userRole } = useAuth()
 
 // Define color palettes
 const colorPalettes = {

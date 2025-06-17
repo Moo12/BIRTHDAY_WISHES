@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { watch } from "vue"
 import UserView from '@/views/UserView.vue'
-import CelebrantView from '@/views/CelebrantView.vue'
 import AdminView from '@/views/AdminView.vue'
 import AdminImagesManager from '@/components/AdminImagesManager.vue'
 import LoginView from '@/views/LoginView.vue'
@@ -15,12 +14,6 @@ const routes = [
     path: '/signin',
     name: 'Signin',
     component: LoginView,
-  },
-  {
-    path: '/celebrant-view',
-    name: 'CelebrantView',
-    component: CelebrantView,
-    meta: { requiresRole: ['celebrant', 'admin'] }
   },
   {
     path: '/home-page',
@@ -59,8 +52,32 @@ const routes = [
         name: "Images",
         component: AdminImagesManager,
       },
+      {
+        path: "all-wishes",
+        name: "AdminAllWishes",
+        component: () => import('@/views/AdminWishesView.vue'),
+      },
     ]
   },
+  {
+    path: '/celebrant',
+    name: 'Celebrant',
+    component: () => import('@/views/CelebrantView.vue'),
+    meta: { requiresRole: ['celebrant', 'admin'] },
+    children: [
+    {
+      path: "all-wishes-board",
+      name: "AllWishesBoard",
+      component: () => import('@/views/CelebrantAllWishesBoard.vue'),
+    },
+    {
+      path: "all-wishes-list",
+      name: "AllWishesList",
+      component: () => import('@/views/CelebrantAllWishesList.vue'),
+    },
+    ]
+  },
+
 ]
 
 // Redirect to signin on logout if currently on protected route
@@ -129,31 +146,30 @@ router.beforeEach(async (to, from, next) => {
       case 'admin':
         return next('/admin');
       case 'celebrant':
-        return next('/celebrant-view');
+        return next('/celebrant');
       case 'user':
         return next('/user-view');
       default:
         // Fallback for authenticated users with no recognized role
         return next('/user-view');
+      }
     }
-  }
-
+    
   // 4. Handle root path ('/') for authenticated users
   // This ensures that accessing '/' always redirects to the user's specific dashboard
   if (to.path === '/') {
     switch (currentUserRole) {
       case 'admin':
-        return next('/admin');
-      case 'celebrant':
-        return next('/celebrant-view');
-      case 'user':
-        return next('/home-page');
-      default:
-        // Fallback for authenticated users with no recognized role
-        return next('/home-page');
-    }
+        return next('/admin/all-wishes');
+        case 'celebrant':
+          return next('/celebrant');
+          case 'user':
+            return next('/home-page');
+            default:
+              // Fallback for authenticated users with no recognized role
+              return next('/home-page');
+            }
   }
-
   // 5. Role-based access control for protected routes
   if (requiresAuth) {
     const allowedRoles = to.meta.requiresRole;
@@ -166,6 +182,48 @@ router.beforeEach(async (to, from, next) => {
       return next('/');
     }
   }
+            
+  // New: Auto-redirect for /admin/* paths if user is admin, only if path is invalid or exact /admin
+  if (isAuthenticated && currentUserRole === 'admin') {
+    if (to.path === '/admin') {
+      // If admin navigates directly to /admin, redirect to default admin view
+      console.log("Redirecting admin from", to.path, "to /admin/all-wishes");
+      return next('/admin/all-wishes');
+    } else if (to.path.startsWith('/admin/')) {
+      // Check if it's a valid admin child route
+      const adminRoute = routes.find(route => route.path === '/admin');
+      if (adminRoute && adminRoute.children) {
+        // Extract the child path part (e.g., 'images' from '/admin/images')
+        const adminChildPath = to.path.substring('/admin/'.length); 
+        // Check if this extracted path matches any defined child route's path
+        const isValidAdminChild = adminRoute.children.some(child => child.path === adminChildPath);
+
+        if (!isValidAdminChild) {
+          // If it's an /admin/ path but not a valid child route, redirect
+          console.log("Redirecting admin from invalid path", to.path, "to /admin/all-wishes");
+          return next('/admin/all-wishes');
+        }
+      }
+      // If it is a valid admin child route, or no children defined (shouldn't happen for /admin), allow access
+    }
+  }
+
+  if (isAuthenticated && currentUserRole === 'celebrant') {
+    if (to.path === '/celebrant') {
+      return next('/celebrant/all-wishes-board');
+    } 
+    else if (to.path.startsWith('/celebrant/')) {
+      const celebrantRoute = routes.find(route => route.path === '/celebrant');
+      if (celebrantRoute && celebrantRoute.children) {
+        const celebrantChildPath = to.path.substring('/celebrant/'.length);
+        const isValidCelebrantChild = celebrantRoute.children.some(child => child.path === celebrantChildPath);
+        if (!isValidCelebrantChild) {
+          return next('/celebrant/all-wishes-board');
+        }
+      }
+    }
+  }
+
 
   // 6. If none of the above conditions apply, allow navigation
   next();

@@ -11,11 +11,20 @@
                     <label>
                         role:
                         <select v-model="imageRoles[slotProps.url]" class="border rounded p-1 text-sm">
-                        <option v-for="option in roleOptions" :key="option" :value="option">
-                            {{ option }}
-                        </option>
+                            <option v-for="option in roleOptions" :key="option" :value="option">
+                                {{ option }}
+                            </option>
                         </select>
                     </label>
+                    <div class="mt-1">
+                        <input 
+                            type="text" 
+                            v-model="customRoles[slotProps.url]" 
+                            @input="handleCustomRole(slotProps.url)"
+                            placeholder="new role ..."
+                            class="border rounded p-1 text-sm w-full"
+                        />
+                    </div>
                 </div>
             </template>
         </WishImages>
@@ -55,6 +64,8 @@ const actionState = ref ({
     state: ""
 })
 
+const customRoles = ref({})
+
 onMounted(() => {
     console.log("images:", props.document)
 
@@ -63,6 +74,9 @@ onMounted(() => {
     // Set default roles for existing images (all "sub" by default)
     props.document?.images_url.forEach(item => {
         imageRoles.value[item?.url || item] = item?.role || "none";
+        if (!roleOptions.includes(item?.role || "none")) {
+            roleOptions.push(item?.role || "none");
+        }
     });
 
     mountedCallbackEnd.value = true
@@ -128,6 +142,12 @@ const handleSubmit = async (e) => {
 
     if (wishImagesRef.value) {
         wishImagesRef.value.saveGeneralImages();
+    }
+}
+
+const handleCustomRole = (url) => {
+    if (customRoles.value[url]?.trim()) {
+        imageRoles.value[url] = customRoles.value[url].trim()
     }
 }
 
