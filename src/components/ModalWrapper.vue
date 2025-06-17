@@ -17,7 +17,7 @@
         <div class="relative z-[2] flex flex-col w-full h-full overflow-y-auto"
         :class="{'bg-gray-100' : !backgroundImageUrl}">
           <button
-            class="mt-2 ml-2 z-[2] self-end font-semibold text-gray-600 hover:bg-gray-300 p-2 rounded-lg text-xl"
+            class="sticky top-[7%] mt-[5%] ml-2 z-[2] self-end font-semibold text-gray-600 hover:bg-gray-300 p-2 rounded-lg text-xl"
             :class="[{'mt-[6%] ml-[2%]' : backgroundImageUrl }, {'mt-2' : !backgroundImageUrl}]"
             @click="$emit('close')"
           >
