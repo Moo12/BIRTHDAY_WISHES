@@ -7,7 +7,7 @@
         <div v-for="wish in wishlistStore.visibleWishes" :key=wish.id class="mx-20 mt-10 md:mx-40">
             <SingleWish 
               :wish="wish" 
-              :editable="user?.uid === wish.user"  
+              :editable="false"
               @remove="handleRemove" 
               @edit="handleEdit"
             />
@@ -27,7 +27,6 @@
 <script setup>
 import { computed, ref } from "vue"
 import useDocument from '@/composables/useDocument'
-import useAuth from '@/composables/useAuth'
 import { useWishlistStore } from '@/stores/wishListStore'
 
 import SingleWish from './SingleWish.vue'

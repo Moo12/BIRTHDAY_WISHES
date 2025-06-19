@@ -1,6 +1,6 @@
 <template>
-    <div class="min-h-screen bg-neutral-100">
-        <WishesWall @remove="onWishRemove" @open="onWishOpen">
+    <div class="bg-neutral-100 h-full w-full">
+        <WishesWall @remove="onWishRemove" @open="onWishOpen" class="h-full w-full">
             <template #controls>
                 <div class="flex flex-col gap-4">
                     <div class="flex justify-center">
@@ -57,6 +57,8 @@ const searchName = ref('')
 // Set the current user in the store when component mounts
 onMounted(() => {
     wishlistStore.setUserUid(user.value?.uid || null)
+
+    wishlistStore.setFilter('public')
 })
 
 const filterButtonClass = (name) => {

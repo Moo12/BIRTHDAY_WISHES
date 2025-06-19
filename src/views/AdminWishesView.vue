@@ -2,7 +2,7 @@
   <div v-if="isLoading" class="container mx-auto px-4 py-8">
     <LoaderWrapper />
   </div>
-  <div v-else class="container mx-auto px-4 py-8">
+  <div v-else class="flex flex-col gap-6 mx-auto px-4 py-8">
     <!-- Statistics Section -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <!-- Total Wishes -->
@@ -24,6 +24,15 @@
       </div>
     </div>
 
+    <div>
+      <button class="btn bg-green-600 px-4 py-2 rounded-lg text-white" @click="clearToUnreadWishes">
+        Clear to UnRead Wishes
+      </button>
+    </div>
+
+
+
+
     <!-- Wishes List -->
     <div class="bg-white rounded-lg shadow">
       <div class="p-6 border-b">
@@ -40,11 +49,9 @@ import { useWishlistStore } from '@/stores/wishListStore'
 import WishesList from '@/components/WishesList.vue'
 import useFirestoreCollection from '@/composables/getCollection'
 import LoaderWrapper from '@/components/LoaderWrapper.vue'
+import useDocument from '@/composables/useDocument'
 
-onMounted(() => {
-  wishlistStore.setReadFilter('all')
-  wishlistStore.setFilter('all')
-})
+const { _updateDoc } = useDocument("wishes")
 
 const wishlistStore = useWishlistStore()
 const {
@@ -53,7 +60,14 @@ const {
     unsubscribe,
   } = useFirestoreCollection()
   
-subscribeToCollection('users')
+
+
+onMounted(() => {
+  subscribeToCollection('users')
+  wishlistStore.setReadFilter('all')
+  wishlistStore.setFilter('all')
+})
+
 
 // Statistics
 const totalWishes = computed(() => wishlistStore.documents?.length || 0)
@@ -75,4 +89,12 @@ const isLoading = computed(() => {
 onUnmounted(() => {
   unsubscribe()
 })
+
+const clearToUnreadWishes = async () => {
+  
+  wishlistStore.documents.forEach(async (wish) => {
+    
+    await _updateDoc({ metadata: { ...wish.metadata, read: false } }, wish.id)
+  })
+}
 </script> 
