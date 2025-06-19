@@ -1,7 +1,7 @@
 <template>
-  <div class="mx-auto">
+  <div class="mx-auto h-full">
 
-    <nav class="w-full md:px-12 px-4  py-3 bg-white shadow flex justify-between items-center relative">
+    <nav class="w-full h-full md:px-12 px-4  py-3 bg-white shadow flex justify-between items-center relative">
   
       <!-- Desktop Nav Links -->
       <div class="hidden md:flex items-center gap-4">
@@ -14,7 +14,7 @@
           דף הבית
         </router-link>
         <router-link
-          v-if="userRole !== 'celebrant'"
+          v-if="userRole && userRole !== 'celebrant'"
           to="/add-wish"
           class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
           :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
@@ -23,7 +23,7 @@
         </router-link>
         <!-- Celebrant Wishes Dropdown -->
         <router-link
-          v-if="user && (userRole === 'celebrant' || userRole === 'admin')"
+          v-if="userRole && (userRole === 'celebrant' || userRole === 'admin')"
           to="/celebrant/all-wishes-list"
           class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
           :class="{
@@ -34,7 +34,7 @@
           לוח ברכות
         </router-link>
         <router-link
-          v-if="userRole !== 'celebrant'"
+          v-if="userRole && userRole !== 'celebrant'"
           to="/all-wishes"
           class="text-gray-700 font-bold hover:text-blue-500 py-1 px-2 border-b-2 border-transparent rounded transition-all"
           :class="$route.path === '/all-wishes' ? 'bg-blue-100 text-blue-700 border-blue-500' : ''"
@@ -119,7 +119,7 @@
                 דף הבית
               </router-link>
               <router-link
-                v-if="userRole !== 'celebrant'"
+                v-if="userRole && userRole !== 'celebrant'"
                 to="/add-wish"
                 class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
                 :class="$route.path === '/add-wish' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
@@ -129,7 +129,7 @@
               </router-link>
               <!-- Celebrant Mobile Link -->
               <router-link
-                v-if="user && (userRole === 'celebrant' || userRole === 'admin')"
+                v-if="userRole && (userRole === 'celebrant' || userRole === 'admin')"
                 to="/celebrant/all-wishes-list"
                 class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
                 :class="$route.path === '/celebrant/all-wishes-list' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
@@ -138,7 +138,7 @@
                 לוח ברכות
               </router-link>
               <router-link
-                v-else-if="userRole !== 'celebrant'"
+                v-if="userRole && userRole !== 'celebrant'"
                 to="/all-wishes"
                 class="w-3/4 text-center py-3 rounded font-bold border-b-2 border-transparent transition-all"
                 :class="$route.path === '/all-wishes' ? 'bg-blue-100 text-blue-700 border-blue-500' : 'text-gray-700 hover:bg-blue-50'"
